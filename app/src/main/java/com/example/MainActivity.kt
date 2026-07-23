@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 selected = currentScreen == NavigationScreen.AI_HUB,
                                 onClick = { viewModel.navigateTo(NavigationScreen.AI_HUB) },
-                                icon = { Icon(if (currentScreen == NavigationScreen.AI_HUB) Icons.Filled.AutoAwesome else Icons.Outlined.AutoAwesome, contentDescription = "AI") },
+                                icon = { Icon(if (currentScreen == NavigationScreen.AI_HUB) Icons.Filled.Memory else Icons.Outlined.Memory, contentDescription = "AI") },
                                 label = { Text("AI Hub") },
                                 modifier = Modifier.testTag("nav_item_ai")
                             )

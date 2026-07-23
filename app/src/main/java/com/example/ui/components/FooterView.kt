@@ -39,7 +39,7 @@ fun FooterView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Phantox Hub",
+                text = "Acarpo",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onSurface
@@ -52,7 +52,7 @@ fun FooterView(
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "Official Media Hub",
+                    text = "by Philemon • Web App",
                     fontSize = 11.sp,
                     color = PrimaryBlue,
                     fontWeight = FontWeight.SemiBold
@@ -162,7 +162,7 @@ fun FooterView(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "© 2026 Phantox Hub. All rights reserved. Educational and authorized security testing content only.",
+            text = "© 2026 Acarpo by Philemon. All rights reserved. Web Application Platform for Software Engineering, AI & Developer Tools.",
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -33,7 +33,7 @@ fun RedirectCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val shortUrl = "phantoxhub.com/go/${redirect.slug}"
+    val shortUrl = "acarpo.app/go/${redirect.slug}"
 
     Card(
         shape = RoundedCornerShape(12.dp),

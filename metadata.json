@@ -1,6 +1,6 @@
 {
-  "name": "Phantox Hub",
-  "description": "Learn. Build. Secure. Design. Central hub for developer tools, cybersecurity labs, AI resources, and content link redirects.",
+  "name": "Acarpo by Philemon",
+  "description": "Acarpo Web App - Central hub for software engineering, web tools, AI resources, cybersecurity labs, and developer redirects by Philemon.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

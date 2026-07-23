@@ -9,10 +9,10 @@ data class Article(
     val slug: String,
     val title: String,
     val description: String,
-    val content: String = "Welcome to Phantox Hub. In this production article, we cover modern software development, best practices, architecture patterns, and step-by-step implementation techniques.", // MDX / Rich content text
+    val content: String = "Welcome to Acarpo by Philemon. In this production article, we cover modern web development, software engineering best practices, architecture patterns, and step-by-step implementation techniques.", // MDX / Rich content text
     val category: String, // Software Engineering, Graphic Design, AI, Cybersecurity, etc.
     val tags: String, // Comma separated
-    val author: String = "Phantox",
+    val author: String = "Philemon",
     val publishedDate: String = "2026-07-23",
     val updatedDate: String = "2026-07-23",
     val readingTime: String = "5 min read",

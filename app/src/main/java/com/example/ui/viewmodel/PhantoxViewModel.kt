@@ -131,7 +131,7 @@ class PhantoxViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             val success = repository.subscribeNewsletter(email)
             if (success) {
-                showToast("Welcome to Phantox Hub Newsletter!")
+                showToast("Welcome to Acarpo by Philemon Newsletter!")
             } else {
                 showToast("Please enter a valid email address.")
             }

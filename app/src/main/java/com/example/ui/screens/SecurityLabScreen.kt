@@ -59,9 +59,9 @@ fun SecurityLabScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Phantox Security Lab",
+                        text = "Acarpo Security Lab by Philemon",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 24.sp,
+                        fontSize = 22.sp,
                         color = Color.White
                     )
                 }

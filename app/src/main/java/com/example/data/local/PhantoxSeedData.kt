@@ -288,8 +288,8 @@ pstmt.setString(1, userInput);""",
         RedirectLink(
             id = "red-3",
             slug = "github",
-            destinationUrl = "https://github.com/phantoxhub",
-            title = "Phantox Official GitHub Repositories",
+            destinationUrl = "https://github.com/philemon",
+            title = "Acarpo Official GitHub Repositories",
             description = "Explore open source code, project templates, and cybersecurity scripts.",
             clicks = 3210,
             category = "Code Repositories"

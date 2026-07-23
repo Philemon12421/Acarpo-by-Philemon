@@ -67,7 +67,7 @@ fun HomeScreen(
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        text = "🚀 PHANTOX MEDIA & LINK HUB",
+                        text = "🚀 ACARPO WEB APP BY PHILEMON",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = PrimaryBlue
@@ -77,20 +77,20 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Learn. Build. Secure. Design.",
+                    text = "Acarpo Engineering & Web App Hub",
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 28.sp,
+                    fontSize = 26.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    lineHeight = 34.sp
+                    lineHeight = 32.sp
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Software Engineering, Graphic Design, AI Tools, Cybersecurity, Tutorials, Resources, and Professional Insights.",
-                    fontSize = 14.sp,
+                    text = "Created by Philemon • Interactive Web App, AI Tools, Cybersecurity Labs, Software Architecture & Redirects",
+                    fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 20.sp,
+                    lineHeight = 18.sp,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
 

@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Phantox Hub"
+rootProject.name = "Acarpo by Philemon"
 
 include(":app")

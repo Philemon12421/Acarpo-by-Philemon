@@ -47,11 +47,62 @@ fun TopHeaderBar(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
     ) {
+        // Web Browser / PWA Header Address Bar Indicator
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "SSL Secure Web App",
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "https://acarpo.app/${currentScreen.name.lowercase()}",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF10B981))
+                    )
+                    Text(
+                        text = "WEB APP PWA ACTIVE",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
+
         // Main Navigation Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -66,30 +117,31 @@ fun TopHeaderBar(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
                         .background(PrimaryBlue),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "P",
+                        text = "A",
                         color = Color.White,
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 18.sp
+                        fontSize = 20.sp
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
-                        text = "Phantox Hub",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
+                        text = "Acarpo",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 17.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Learn. Build. Secure.",
+                        text = "by Philemon • Web App",
                         fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontWeight = FontWeight.Medium,
+                        color = PrimaryBlue
                     )
                 }
             }

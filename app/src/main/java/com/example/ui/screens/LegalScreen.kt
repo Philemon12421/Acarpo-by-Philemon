@@ -67,45 +67,44 @@ fun LegalScreen(
                 ) {
                     when (pageTitle) {
                         "About Us" -> {
-                            Text("About Phantox Hub", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
+                            Text("About Acarpo by Philemon", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
                             Text(
-                                "Phantox Hub is a central digital media and engineering destination founded by Phantox. " +
-                                "We publish production-ready tutorials, developer guides, cybersecurity research, and AI tool reviews. " +
-                                "Instead of sending users directly to external links mentioned across YouTube, TikTok, Facebook, Instagram, " +
-                                "and LinkedIn, Phantox Hub offers in-depth context, code snippets, and structured resources.",
+                                "Acarpo by Philemon is a modern web application and engineering hub founded by Philemon. " +
+                                "We publish production-ready web tools, developer guides, cybersecurity research, software architecture tutorials, and AI tool reviews. " +
+                                "Acarpo brings together dynamic link redirects, developer playgrounds, and curated software tools into a single progressive web application experience.",
                                 fontSize = 13.sp, lineHeight = 20.sp
                             )
                         }
                         "Contact Us" -> {
                             Text("Contact & Media Inquiries", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
-                            Text("For sponsorships, technical writing, or security research inquiries, contact us at:", fontSize = 13.sp)
+                            Text("For sponsorships, technical writing, or engineering inquiries, contact Philemon at:", fontSize = 13.sp)
                             Text("Email: philemonkusi292@gmail.com", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = PrimaryBlue)
-                            Text("YouTube: @PhantoxHub", fontSize = 13.sp)
-                            Text("GitHub: github.com/phantoxhub", fontSize = 13.sp)
+                            Text("GitHub: github.com/philemon", fontSize = 13.sp)
+                            Text("Web App: https://acarpo.app", fontSize = 13.sp)
                         }
                         "Privacy Policy" -> {
                             Text("Privacy Policy", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
                             Text(
-                                "Last updated: July 2026. Phantox Hub respects your privacy. " +
+                                "Last updated: July 2026. Acarpo by Philemon respects your privacy. " +
                                 "We collect minimal anonymous usage analytics and newsletter email subscriptions. " +
-                                "We do not share your personal information with third parties. Google AdSense ads may use cookies for personalized advertising in compliance with GDPR and CCPA guidelines.",
+                                "We do not share your personal information with third parties. Google AdSense and analytics comply with GDPR and CCPA guidelines.",
                                 fontSize = 13.sp, lineHeight = 20.sp
                             )
                         }
                         "Terms of Service" -> {
                             Text("Terms of Service", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
                             Text(
-                                "By accessing Phantox Hub, you agree to comply with our terms. " +
+                                "By accessing Acarpo by Philemon, you agree to comply with our terms. " +
                                 "All code samples are provided as-is under open MIT licensing. " +
-                                "Cybersecurity writeups and CTF notes are strictly for authorized security testing and education.",
+                                "Cybersecurity writeups and lab notes are strictly for authorized testing and educational purposes.",
                                 fontSize = 13.sp, lineHeight = 20.sp
                             )
                         }
                         "Disclaimer" -> {
                             Text("Disclaimer & Educational Use", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
                             Text(
-                                "All content provided on Phantox Hub is for educational, informational, and research purposes only. " +
-                                "The author assumes no liability for misuse of code, scripts, or penetration testing tools provided on this hub.",
+                                "All content provided on Acarpo by Philemon is for educational, informational, and research purposes only. " +
+                                "Philemon assumes no liability for misuse of code, scripts, or tools provided on this application.",
                                 fontSize = 13.sp, lineHeight = 20.sp
                             )
                         }
@@ -113,22 +112,23 @@ fun LegalScreen(
                             Text("Affiliate Disclosure", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
                             Text(
                                 "Some links in our Tools Directory or Link Hub may be affiliate referral links. " +
-                                "If you purchase a subscription through these links, Phantox Hub may earn a small commission at no extra cost to you.",
+                                "If you purchase a subscription through these links, Acarpo by Philemon may earn a small commission at no extra cost to you.",
                                 fontSize = 13.sp, lineHeight = 20.sp
                             )
                         }
                         "Cookie Policy" -> {
                             Text("Cookie Policy", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
                             Text(
-                                "Phantox Hub uses essential local state storage (Room DB) to persist your bookmarks, dark mode preference, and reading history locally on your device.",
+                                "Acarpo by Philemon uses essential local state storage (Room DB) to persist your bookmarks, dark mode preference, and reading history locally on your device.",
                                 fontSize = 13.sp, lineHeight = 20.sp
                             )
                         }
                         else -> { // Dynamic Sitemap
-                            Text("Dynamic Sitemap & RSS Feed", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
-                            Text("XML Sitemap URL: https://phantoxhub.com/sitemap.xml", fontSize = 13.sp)
-                            Text("RSS Feed URL: https://phantoxhub.com/rss.xml", fontSize = 13.sp)
-                            Text("Robots.txt URL: https://phantoxhub.com/robots.txt", fontSize = 13.sp)
+                            Text("Dynamic Sitemap & Web Manifest", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlue)
+                            Text("Web App URL: https://acarpo.app", fontSize = 13.sp)
+                            Text("PWA Manifest: https://acarpo.app/manifest.json", fontSize = 13.sp)
+                            Text("Sitemap XML: https://acarpo.app/sitemap.xml", fontSize = 13.sp)
+                            Text("RSS Feed: https://acarpo.app/rss.xml", fontSize = 13.sp)
                         }
                     }
                 }

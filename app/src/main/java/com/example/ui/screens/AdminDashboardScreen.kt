@@ -74,7 +74,7 @@ fun AdminDashboardScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Phantox Hub Creator Admin",
+                        text = "Acarpo Web App Creator Admin",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface

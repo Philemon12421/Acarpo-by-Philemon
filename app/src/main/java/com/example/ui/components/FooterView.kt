@@ -52,7 +52,7 @@ fun FooterView(
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "by Philemon • Web App",
+                    text = "Drenchack Tech Company • Web App",
                     fontSize = 11.sp,
                     color = PrimaryBlue,
                     fontWeight = FontWeight.SemiBold
@@ -162,7 +162,7 @@ fun FooterView(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "© 2026 Acarpo by Philemon. All rights reserved. Web Application Platform for Software Engineering, AI & Developer Tools.",
+            text = "© 2026 Acarpo, developed by Drenchack Tech Company. All rights reserved. Web Application Platform for Software Engineering, AI & Developer Tools.",
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

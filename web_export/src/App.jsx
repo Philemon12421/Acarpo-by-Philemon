@@ -67,7 +67,7 @@ export default function App() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-5xl mx-auto p-6 space-y-8">
+      <main className="max-w-5xl mx-auto p-6 space-y-8 pb-24">
         {/* Search Bar */}
         <div className="relative">
           <input
@@ -147,9 +147,32 @@ export default function App() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 mt-12 py-6 px-6 text-center text-xs text-slate-500">
-        © 2026 Acarpo Web • Powered by React, Vite, Tailwind CSS & Vercel
+      {/* Fixed Bottom Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/80 px-6 py-3.5 shadow-2xl">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <p className="font-medium text-slate-300">
+              © 2026 Acarpo Web, developed by Drenchack Tech Company
+            </p>
+          </div>
+
+          {/* Social Media Link Placeholders */}
+          <div className="flex items-center gap-2">
+            <a href="#twitter" className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-blue-600/20 hover:text-blue-400 border border-slate-700/60 transition font-medium text-[11px]">
+              Twitter / X
+            </a>
+            <a href="#github" className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700/60 transition font-medium text-[11px]">
+              GitHub
+            </a>
+            <a href="#linkedin" className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-blue-600/20 hover:text-blue-400 border border-slate-700/60 transition font-medium text-[11px]">
+              LinkedIn
+            </a>
+            <a href="#discord" className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-indigo-600/20 hover:text-indigo-400 border border-slate-700/60 transition font-medium text-[11px]">
+              Discord
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );

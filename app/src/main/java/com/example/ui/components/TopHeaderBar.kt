@@ -216,7 +216,7 @@ fun TopHeaderBar(
                         )
                         DropdownMenuItem(
                             text = { Text("Artificial Intelligence") },
-                            leadingIcon = { Icon(Icons.Default.AutoAwesome, null) },
+                            leadingIcon = { Icon(Icons.Default.Memory, null) },
                             onClick = {
                                 menuExpanded = false
                                 onNavigate(NavigationScreen.AI_HUB)

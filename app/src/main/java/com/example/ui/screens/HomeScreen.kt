@@ -173,7 +173,7 @@ fun HomeScreen(
                     CategoryHubBox(
                         title = "AI Hub",
                         subtitle = "Gemini, Prompts, Agents",
-                        icon = Icons.Default.AutoAwesome,
+                        icon = Icons.Default.Memory,
                         color = AccentCyan,
                         onClick = { onNavigate(NavigationScreen.AI_HUB) },
                         modifier = Modifier.weight(1f)

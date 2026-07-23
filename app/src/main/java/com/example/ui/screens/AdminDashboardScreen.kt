@@ -156,7 +156,12 @@ fun AdminDashboardScreen(
                 Tab(
                     selected = selectedTab == 4,
                     onClick = { selectedTab = 4 },
-                    text = { Text("Blogger / Backup", fontSize = 11.sp) }
+                    text = { Text("Blogger", fontSize = 11.sp) }
+                )
+                Tab(
+                    selected = selectedTab == 5,
+                    onClick = { selectedTab = 5 },
+                    text = { Text("React & Vercel", fontSize = 11.sp) }
                 )
             }
         }
@@ -521,6 +526,155 @@ fun AdminDashboardScreen(
                                 Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("Copy Blogger Widget HTML Code", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+
+            5 -> {
+                item {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Code,
+                                    contentDescription = null,
+                                    tint = PrimaryBlue,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("React + Vite + Vercel Web Export", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+
+                            Text(
+                                text = "Acarpo React Web Code: Copy these files to run Acarpo natively as a React 18 / Vite SPA deployed on Vercel or Netlify.",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            // App.jsx React component export
+                            val d = '$'
+                            val reactAppJsx = """
+import React, { useState } from 'react';
+
+// Acarpo Web App in React 18 + Tailwind / CSS
+export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const articles = [
+    { id: 1, title: 'Building Scalable Web Engines with React & Vite', category: 'Tech', author: 'Philemon' },
+    { id: 2, title: 'The Future of Autonomous AI Tools', category: 'AI', author: 'Philemon' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+      {/* Top Header */}
+      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl text-white">A</div>
+          <div>
+            <h1 className="font-bold text-lg leading-tight">Acarpo Web</h1>
+            <p className="text-xs text-slate-400">by Philemon • acarpo.app</p>
+          </div>
+        </div>
+        <nav className="flex gap-2">
+          {['home', 'articles', 'ai-hub', 'tools', 'admin'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition ${d}{
+                activeTab === tab ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'
+              }`}
+            >
+              {d}{tab.replace('-', ' ')}
+            </button>
+          ))}
+        </nav>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto p-6">
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search articles, tools, links..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
+          />
+        </div>
+
+        <section className="grid gap-4 md:grid-cols-2">
+          {articles.map(art => (
+            <article key={art.id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
+              <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">{d}{art.category}</span>
+              <h2 className="text-lg font-bold mt-1 text-slate-100">{d}{art.title}</h2>
+              <p className="text-xs text-slate-400 mt-2">By {d}{art.author}</p>
+            </article>
+          ))}
+        </section>
+      </main>
+    </div>
+  );
+}
+                            """.trimIndent()
+
+                            Button(
+                                onClick = {
+                                    clipboardManager.setText(AnnotatedString(reactAppJsx))
+                                    onShowToast("Copied React App.jsx code to clipboard!")
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                                modifier = Modifier.fillMaxWidth().testTag("copy_react_code_btn")
+                            ) {
+                                Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Copy React App.jsx Code", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+                            // vercel.json export
+                            val vercelJson = """
+{
+  "version": 2,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
+                            """.trimIndent()
+
+                            Text("vercel.json Configuration:", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            OutlinedTextField(
+                                value = vercelJson,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth().height(100.dp)
+                            )
+
+                            OutlinedButton(
+                                onClick = {
+                                    clipboardManager.setText(AnnotatedString(vercelJson))
+                                    onShowToast("Copied vercel.json configuration to clipboard!")
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Copy vercel.json Config", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

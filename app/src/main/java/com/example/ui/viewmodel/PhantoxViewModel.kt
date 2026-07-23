@@ -180,7 +180,84 @@ class PhantoxViewModel(application: Application) : AndroidViewModel(application)
         )
         viewModelScope.launch {
             repository.insertRedirectLink(link)
-            showToast("Created redirect phantoxhub.com/go/$cleanSlug")
+            showToast("Created redirect acarpo.app/go/$cleanSlug")
+        }
+    }
+
+    fun importBloggerOrJsonData(dataString: String) {
+        if (dataString.isBlank()) {
+            showToast("Please paste Blogger XML or JSON backup content.")
+            return
+        }
+
+        viewModelScope.launch {
+            var importedCount = 0
+            try {
+                if (dataString.contains("<entry>", ignoreCase = true) || dataString.contains("<feed", ignoreCase = true)) {
+                    // Simple Blogger XML / Atom Feed Parser
+                    val entryRegex = Regex("<entry[\\s\\S]*?<\\/entry>", RegexOption.IGNORE_CASE)
+                    val matches = entryRegex.findAll(dataString).toList()
+
+                    for ((idx, match) in matches.withIndex()) {
+                        val entryXml = match.value
+
+                        val title = Regex("<title[^\n>]*>([\\s\\S]*?)<\\/title>", RegexOption.IGNORE_CASE)
+                            .find(entryXml)?.groupValues?.get(1)?.replace(Regex("<[^>]*>"), "")?.trim() ?: "Blogger Import ${idx + 1}"
+
+                        val content = Regex("<content[^\n>]*>([\\s\\S]*?)<\\/content>", RegexOption.IGNORE_CASE)
+                            .find(entryXml)?.groupValues?.get(1)?.replace(Regex("<!\\[CDATA\\[|\\]\\]>"), "")?.trim()
+                            ?: Regex("<summary[^\n>]*>([\\s\\S]*?)<\\/summary>", RegexOption.IGNORE_CASE)
+                                .find(entryXml)?.groupValues?.get(1)?.replace(Regex("<!\\[CDATA\\[|\\]\\]>"), "")?.trim()
+                            ?: "Imported content from Blogger."
+
+                        val category = Regex("<category[^\n>]*term=['\"]([^'\"]+)['\"]", RegexOption.IGNORE_CASE)
+                            .find(entryXml)?.groupValues?.get(1) ?: "Blogger Imports"
+
+                        val cleanContent = content.replace(Regex("<[^>]*>"), " ").take(1200)
+                        val slug = title.lowercase().replace(" ", "-").replace(Regex("[^a-z0-9-]"), "")
+
+                        val art = Article(
+                            id = "blogger-${System.currentTimeMillis()}-$idx",
+                            slug = slug.ifBlank { "blogger-$idx" },
+                            title = title,
+                            description = cleanContent.take(160) + "...",
+                            content = cleanContent,
+                            category = category,
+                            tags = "Blogger, Import, CMS",
+                            author = "Philemon"
+                        )
+                        repository.insertArticle(art)
+                        importedCount++
+                    }
+                } else {
+                    // Generic JSON / Text key-value or raw article import
+                    val lines = dataString.lines().filter { it.isNotBlank() }
+                    if (lines.isNotEmpty()) {
+                        val title = lines.firstOrNull() ?: "Imported Article"
+                        val content = lines.drop(1).joinToString("\n")
+                        val art = Article(
+                            id = "imp-${System.currentTimeMillis()}",
+                            slug = title.lowercase().replace(" ", "-").replace(Regex("[^a-z0-9-]"), ""),
+                            title = title,
+                            description = content.take(150),
+                            content = content.ifBlank { title },
+                            category = "Blogger Imports",
+                            tags = "Imported",
+                            author = "Philemon"
+                        )
+                        repository.insertArticle(art)
+                        importedCount = 1
+                    }
+                }
+
+                if (importedCount > 0) {
+                    showToast("Successfully imported $importedCount items into Acarpo DB!")
+                } else {
+                    showToast("No valid Blogger entries found in text.")
+                }
+            } catch (e: Exception) {
+                showToast("Import error: ${e.localizedMessage}")
+            }
         }
     }
 

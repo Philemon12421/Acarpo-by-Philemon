@@ -243,6 +243,9 @@ class MainActivity : ComponentActivity() {
                                         articlesCount = articles.size,
                                         redirectsCount = redirects.size,
                                         subscribers = subscribers,
+                                        articles = articles,
+                                        redirects = redirects,
+                                        tools = tools,
                                         onCreateArticle = { title, cat, desc, content, tags ->
                                             viewModel.createNewArticle(title, cat, desc, content, tags)
                                         },
@@ -251,6 +254,12 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onCreateTool = { name, cat, url, desc, pros, cons ->
                                             viewModel.createNewTool(name, cat, url, desc, pros, cons)
+                                        },
+                                        onImportBloggerData = { data ->
+                                            viewModel.importBloggerOrJsonData(data)
+                                        },
+                                        onShowToast = { msg ->
+                                            viewModel.showToast(msg)
                                         }
                                     )
                                 }

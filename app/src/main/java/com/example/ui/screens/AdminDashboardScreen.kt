@@ -17,9 +17,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import com.example.data.model.Article
 import com.example.data.model.RedirectLink
 import com.example.data.model.Subscriber
+import com.example.data.model.ToolItem
 import com.example.ui.theme.AccentCyan
 import com.example.ui.theme.PrimaryBlue
 
@@ -28,11 +31,17 @@ fun AdminDashboardScreen(
     articlesCount: Int,
     redirectsCount: Int,
     subscribers: List<Subscriber>,
+    articles: List<Article> = emptyList(),
+    redirects: List<RedirectLink> = emptyList(),
+    tools: List<ToolItem> = emptyList(),
     onCreateArticle: (String, String, String, String, String) -> Unit,
     onCreateRedirect: (String, String, String, String) -> Unit,
-    onCreateTool: (String, String, String, String, String, String) -> Unit
+    onCreateTool: (String, String, String, String, String, String) -> Unit,
+    onImportBloggerData: (String) -> Unit = {},
+    onShowToast: (String) -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    val clipboardManager = LocalClipboardManager.current
 
     // Article Form State
     var articleTitle by remember { mutableStateOf("") }
@@ -54,6 +63,9 @@ fun AdminDashboardScreen(
     var toolDesc by remember { mutableStateOf("") }
     var toolPros by remember { mutableStateOf("") }
     var toolCons by remember { mutableStateOf("") }
+
+    // Blogger / Backup Import State
+    var bloggerImportText by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = Modifier
@@ -139,7 +151,12 @@ fun AdminDashboardScreen(
                 Tab(
                     selected = selectedTab == 3,
                     onClick = { selectedTab = 3 },
-                    text = { Text("Subscribers", fontSize = 12.sp) }
+                    text = { Text("Subscribers", fontSize = 11.sp) }
+                )
+                Tab(
+                    selected = selectedTab == 4,
+                    onClick = { selectedTab = 4 },
+                    text = { Text("Blogger / Backup", fontSize = 11.sp) }
                 )
             }
         }
@@ -352,6 +369,158 @@ fun AdminDashboardScreen(
                             ) {
                                 Text(text = sub.email, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                 Text(text = "Subscribed", fontSize = 10.sp, color = Color(0xFF10B981))
+                            }
+                        }
+                    }
+                }
+            }
+
+            4 -> {
+                item {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.CloudSync,
+                                    contentDescription = null,
+                                    tint = PrimaryBlue,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Blogger & CMS Sync / Backup Engine", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+
+                            // Standalone indicator banner
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.CheckCircle,
+                                        contentDescription = null,
+                                        tint = PrimaryBlue,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Acarpo operates 100% autonomously on local Room DB storage. You can backup to or import from Blogger at any time.",
+                                        fontSize = 11.sp,
+                                        lineHeight = 15.sp,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+
+                            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+                            // Export to Blogger XML Feed (Atom 1.0)
+                            Text("1. Export Posts to Blogger XML Feed", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(
+                                text = "Generates a standard Blogger Atom XML feed containing all ${articles.size} published articles. Import this file directly into Blogger (Settings -> Manage Blog -> Import Content).",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Button(
+                                onClick = {
+                                    val xmlBuilder = StringBuilder()
+                                    xmlBuilder.append("<?xml version='1.0' encoding='UTF-8'?>\n")
+                                    xmlBuilder.append("<feed xmlns='http://www.w3.org/2005/Atom'>\n")
+                                    xmlBuilder.append("  <title>Acarpo by Philemon</title>\n")
+                                    xmlBuilder.append("  <subtitle>Web App & Developer Engine</subtitle>\n")
+                                    for (art in articles) {
+                                        xmlBuilder.append("  <entry>\n")
+                                        xmlBuilder.append("    <title>${art.title.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")}</title>\n")
+                                        xmlBuilder.append("    <category term='${art.category}'/>\n")
+                                        xmlBuilder.append("    <content type='html'><![CDATA[${art.content}]]></content>\n")
+                                        xmlBuilder.append("  </entry>\n")
+                                    }
+                                    xmlBuilder.append("</feed>")
+
+                                    clipboardManager.setText(AnnotatedString(xmlBuilder.toString()))
+                                    onShowToast("Copied Blogger XML Feed (${articles.size} posts) to clipboard!")
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                                modifier = Modifier.fillMaxWidth().testTag("copy_blogger_xml_btn")
+                            ) {
+                                Icon(imageVector = Icons.Default.Code, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Copy Blogger XML Backup to Clipboard", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+                            // Import / Restore from Blogger or JSON
+                            Text("2. Import & Restore from Blogger or JSON", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(
+                                text = "Paste Blogger XML feed or JSON backup data below to automatically parse and restore posts into Acarpo DB.",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            OutlinedTextField(
+                                value = bloggerImportText,
+                                onValueChange = { bloggerImportText = it },
+                                placeholder = { Text("Paste Blogger XML feed or JSON backup here...") },
+                                modifier = Modifier.fillMaxWidth().height(100.dp).testTag("blogger_import_input")
+                            )
+
+                            Button(
+                                onClick = {
+                                    onImportBloggerData(bloggerImportText)
+                                    bloggerImportText = ""
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = AccentCyan),
+                                modifier = Modifier.fillMaxWidth().testTag("import_blogger_btn")
+                            ) {
+                                Icon(imageVector = Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Import / Restore Content Now", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+                            // Blogger Widget Embed
+                            Text("3. Blogger Custom Gadget Widget Code", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(
+                                text = "Copy this snippet into Blogger Layout -> Add a Gadget -> HTML/JavaScript to display Acarpo Web App directly on your Blogger blog.",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            val gadgetCode = "<!-- Acarpo Web App Blogger Gadget -->\n" +
+                                    "<div id='acarpo-blog-widget'></div>\n" +
+                                    "<iframe src='https://acarpo.app' width='100%' height='650px' style='border:0; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);' title='Acarpo by Philemon Web App'></iframe>"
+
+                            OutlinedTextField(
+                                value = gadgetCode,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth().height(80.dp)
+                            )
+
+                            OutlinedButton(
+                                onClick = {
+                                    clipboardManager.setText(AnnotatedString(gadgetCode))
+                                    onShowToast("Copied Blogger Widget Embed HTML code to clipboard!")
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Copy Blogger Widget HTML Code", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

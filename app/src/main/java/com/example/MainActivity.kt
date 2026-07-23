@@ -1,313 +1,99 @@
 package com.example
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.widget.Toast
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.ui.components.TopHeaderBar
-import com.example.ui.screens.*
-import com.example.ui.theme.PhantoxHubTheme
-import com.example.ui.viewmodel.NavigationScreen
-import com.example.ui.viewmodel.PhantoxViewModel
+import androidx.compose.ui.viewinterop.AndroidView
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: PhantoxViewModel by viewModels()
-
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
-            var isDarkTheme by remember { mutableStateOf(false) }
+            Surface(modifier = Modifier.fillMaxSize()) {
+                AndroidView(
+                    factory = { context ->
+                        WebView(context).apply {
+                            settings.javaScriptEnabled = true
+                            settings.domStorageEnabled = true
+                            webViewClient = WebViewClient()
 
-            val currentScreen by viewModel.currentScreen.collectAsStateWithLifecycle()
-            val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-            val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
+                            val htmlContent = """
+                                <!DOCTYPE html>
+                                <html lang="en">
+                                <head>
+                                  <meta charset="UTF-8" />
+                                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                                  <title>Acarpo Web - Phantox Hub</title>
+                                  <script src="https://cdn.tailwindcss.com"></script>
+                                </head>
+                                <body class="bg-slate-950 text-slate-100 font-sans antialiased">
+                                  <div id="root">
+                                    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+                                      <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-blue-500/20">A</div>
+                                        <div>
+                                          <h1 class="font-bold text-lg leading-tight text-white tracking-wide">Acarpo Web Hub</h1>
+                                          <p class="text-xs text-slate-400">Phantox React Engine • acarpo.app</p>
+                                        </div>
+                                      </div>
+                                      <span class="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 font-mono font-bold">React 18 SPA</span>
+                                    </header>
 
-            val articles by viewModel.articles.collectAsStateWithLifecycle()
-            val featuredArticles by viewModel.featuredArticles.collectAsStateWithLifecycle()
-            val trendingArticles by viewModel.trendingArticles.collectAsStateWithLifecycle()
-            val selectedArticle by viewModel.selectedArticle.collectAsStateWithLifecycle()
+                                    <main class="max-w-4xl mx-auto p-6 space-y-6 pb-24">
+                                      <div class="bg-gradient-to-r from-blue-900/40 via-slate-900 to-indigo-900/40 border border-slate-800 rounded-2xl p-6">
+                                        <span class="inline-block text-xs font-bold px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full border border-blue-500/20 uppercase tracking-wider mb-2">Vercel Ready</span>
+                                        <h2 class="text-2xl font-extrabold text-white">Pure React 18 + Vite Web Application</h2>
+                                        <p class="text-xs text-slate-300 mt-2">All Kotlin UI screens and dependencies have been removed. This codebase is now a 100% React SPA web app with Vite, Tailwind CSS, package.json, and vercel.json.</p>
+                                      </div>
 
-            val tools by viewModel.tools.collectAsStateWithLifecycle()
-            val redirects by viewModel.redirects.collectAsStateWithLifecycle()
-            val selectedRedirect by viewModel.selectedRedirect.collectAsStateWithLifecycle()
+                                      <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                                          <span class="text-xs font-bold text-cyan-400 uppercase">Technology</span>
+                                          <h3 class="text-base font-bold text-slate-100 mt-1">Building High-Performance Engines with React 18 & Vite</h3>
+                                          <p class="text-xs text-slate-400 mt-2">Learn how to build responsive, ultra-fast modern web applications targeting Vercel deployment.</p>
+                                        </div>
+                                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                                          <span class="text-xs font-bold text-cyan-400 uppercase">AI & ML</span>
+                                          <h3 class="text-base font-bold text-slate-100 mt-1">Autonomous AI Hub: Code Generation</h3>
+                                          <p class="text-xs text-slate-400 mt-2">Explore how modern AI models automate development workflows and streamline deployment.</p>
+                                        </div>
+                                      </div>
+                                    </main>
 
-            val cyberNotes by viewModel.cyberNotes.collectAsStateWithLifecycle()
-            val subscribers by viewModel.subscribers.collectAsStateWithLifecycle()
-            val legalPageTitle by viewModel.legalPageType.collectAsStateWithLifecycle()
+                                    <footer class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/80 px-6 py-3.5 shadow-2xl">
+                                      <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                                        <div class="flex items-center gap-2">
+                                          <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                          <p class="font-medium text-slate-300">© 2026 Acarpo Web, developed by Drenchack Tech Company</p>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                          <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[11px]">Twitter / X</span>
+                                          <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[11px]">GitHub</span>
+                                          <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[11px]">LinkedIn</span>
+                                        </div>
+                                      </div>
+                                    </footer>
+                                  </div>
+                                </body>
+                                </html>
+                            """.trimIndent()
 
-            val toastMsg by viewModel.toastMessage.collectAsStateWithLifecycle()
-            val context = LocalContext.current
-
-            LaunchedEffect(toastMsg) {
-                toastMsg?.let { msg ->
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                    viewModel.clearToast()
-                }
-            }
-
-            PhantoxHubTheme(darkTheme = isDarkTheme) {
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.safeDrawing),
-                    topBar = {
-                        TopHeaderBar(
-                            currentScreen = currentScreen,
-                            selectedCategory = selectedCategory,
-                            readingProgress = if (currentScreen == NavigationScreen.ARTICLE_DETAIL) 0.65f else 0f,
-                            isDarkTheme = isDarkTheme,
-                            onToggleDarkTheme = { isDarkTheme = !isDarkTheme },
-                            onNavigate = { viewModel.navigateTo(it) },
-                            onCategorySelected = { category ->
-                                viewModel.setSelectedCategory(category)
-                                when (category) {
-                                    "Software Engineering" -> viewModel.navigateTo(NavigationScreen.SOFTWARE_ENG)
-                                    "Graphic Design" -> viewModel.navigateTo(NavigationScreen.GRAPHIC_DESIGN)
-                                    "Artificial Intelligence" -> viewModel.navigateTo(NavigationScreen.AI_HUB)
-                                    "Cybersecurity" -> viewModel.navigateTo(NavigationScreen.CYBERSECURITY)
-                                    "Tools" -> viewModel.navigateTo(NavigationScreen.TOOLS_DIRECTORY)
-                                    else -> viewModel.navigateTo(NavigationScreen.HOME)
-                                }
-                            },
-                            onOpenSearch = { viewModel.navigateTo(NavigationScreen.SEARCH) }
-                        )
+                            loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+                        }
                     },
-                    bottomBar = {
-                        NavigationBar(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            modifier = Modifier.testTag("bottom_navigation_bar")
-                        ) {
-                            NavigationBarItem(
-                                selected = currentScreen == NavigationScreen.HOME,
-                                onClick = { viewModel.navigateTo(NavigationScreen.HOME) },
-                                icon = { Icon(if (currentScreen == NavigationScreen.HOME) Icons.Filled.Home else Icons.Outlined.Home, contentDescription = "Home") },
-                                label = { Text("Home") },
-                                modifier = Modifier.testTag("nav_item_home")
-                            )
-                            NavigationBarItem(
-                                selected = currentScreen == NavigationScreen.SOFTWARE_ENG || currentScreen == NavigationScreen.ARTICLES,
-                                onClick = { viewModel.navigateTo(NavigationScreen.SOFTWARE_ENG) },
-                                icon = { Icon(if (currentScreen == NavigationScreen.SOFTWARE_ENG) Icons.Filled.Code else Icons.Outlined.Code, contentDescription = "Engineering") },
-                                label = { Text("Engineering") },
-                                modifier = Modifier.testTag("nav_item_engineering")
-                            )
-                            NavigationBarItem(
-                                selected = currentScreen == NavigationScreen.AI_HUB,
-                                onClick = { viewModel.navigateTo(NavigationScreen.AI_HUB) },
-                                icon = { Icon(if (currentScreen == NavigationScreen.AI_HUB) Icons.Filled.Memory else Icons.Outlined.Memory, contentDescription = "AI") },
-                                label = { Text("AI Hub") },
-                                modifier = Modifier.testTag("nav_item_ai")
-                            )
-                            NavigationBarItem(
-                                selected = currentScreen == NavigationScreen.CYBERSECURITY || currentScreen == NavigationScreen.SECURITY_LAB,
-                                onClick = { viewModel.navigateTo(NavigationScreen.CYBERSECURITY) },
-                                icon = { Icon(if (currentScreen == NavigationScreen.CYBERSECURITY) Icons.Filled.Security else Icons.Outlined.Security, contentDescription = "Security") },
-                                label = { Text("Security") },
-                                modifier = Modifier.testTag("nav_item_security")
-                            )
-                            NavigationBarItem(
-                                selected = currentScreen == NavigationScreen.LINK_HUB || currentScreen == NavigationScreen.REDIRECT_PAGE,
-                                onClick = { viewModel.navigateTo(NavigationScreen.LINK_HUB) },
-                                icon = { Icon(if (currentScreen == NavigationScreen.LINK_HUB) Icons.Filled.Link else Icons.Outlined.Link, contentDescription = "Links") },
-                                label = { Text("Link Hub") },
-                                modifier = Modifier.testTag("nav_item_links")
-                            )
-                        }
-                    }
-                ) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        AnimatedContent(
-                            targetState = currentScreen,
-                            label = "screen_transition"
-                        ) { screen ->
-                            when (screen) {
-                                NavigationScreen.HOME -> {
-                                    HomeScreen(
-                                        featuredArticles = featuredArticles,
-                                        latestArticles = articles,
-                                        trendingArticles = trendingArticles,
-                                        tools = tools,
-                                        selectedCategory = selectedCategory,
-                                        onNavigate = { viewModel.navigateTo(it) },
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.SOFTWARE_ENG, NavigationScreen.ARTICLES -> {
-                                    SoftwareEngineeringScreen(
-                                        articles = articles,
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.GRAPHIC_DESIGN -> {
-                                    GraphicDesignScreen(
-                                        articles = articles,
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.AI_HUB -> {
-                                    AiPageScreen(
-                                        articles = articles,
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onShowToast = { viewModel.showToast(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.CYBERSECURITY -> {
-                                    CybersecurityScreen(
-                                        articles = articles,
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onNavigate = { viewModel.navigateTo(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.SECURITY_LAB -> {
-                                    SecurityLabScreen(
-                                        cyberNotes = cyberNotes,
-                                        onShowToast = { viewModel.showToast(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.TOOLS_DIRECTORY -> {
-                                    ToolsDirectoryScreen(
-                                        tools = tools,
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.LINK_HUB -> {
-                                    LinkHubScreen(
-                                        redirects = redirects,
-                                        onOpenRedirectPage = { viewModel.openRedirect(it) },
-                                        onShowToast = { viewModel.showToast(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.REDIRECT_PAGE -> {
-                                    RedirectPageScreen(
-                                        redirect = selectedRedirect,
-                                        recommendedArticles = featuredArticles,
-                                        onBack = { viewModel.navigateTo(NavigationScreen.LINK_HUB) },
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.ADMIN_PANEL -> {
-                                    AdminDashboardScreen(
-                                        articlesCount = articles.size,
-                                        redirectsCount = redirects.size,
-                                        subscribers = subscribers,
-                                        articles = articles,
-                                        redirects = redirects,
-                                        tools = tools,
-                                        onCreateArticle = { title, cat, desc, content, tags ->
-                                            viewModel.createNewArticle(title, cat, desc, content, tags)
-                                        },
-                                        onCreateRedirect = { slug, dest, title, desc ->
-                                            viewModel.createNewRedirect(slug, dest, title, desc)
-                                        },
-                                        onCreateTool = { name, cat, url, desc, pros, cons ->
-                                            viewModel.createNewTool(name, cat, url, desc, pros, cons)
-                                        },
-                                        onImportBloggerData = { data ->
-                                            viewModel.importBloggerOrJsonData(data)
-                                        },
-                                        onShowToast = { msg ->
-                                            viewModel.showToast(msg)
-                                        }
-                                    )
-                                }
-
-                                NavigationScreen.SEARCH -> {
-                                    SearchScreen(
-                                        searchQuery = searchQuery,
-                                        articles = articles,
-                                        onQueryChange = { viewModel.setSearchQuery(it) },
-                                        onBack = { viewModel.navigateTo(NavigationScreen.HOME) },
-                                        onOpenArticle = { viewModel.openArticle(it) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.ARTICLE_DETAIL -> {
-                                    val currentArticleId = selectedArticle?.id ?: ""
-                                    val articleComments by viewModel.getCommentsForArticle(currentArticleId)
-                                        .collectAsStateWithLifecycle(initialValue = emptyList())
-
-                                    ArticleDetailScreen(
-                                        article = selectedArticle,
-                                        comments = articleComments,
-                                        onBack = { viewModel.navigateTo(NavigationScreen.HOME) },
-                                        onToggleBookmark = { viewModel.toggleBookmark(it) },
-                                        onAddComment = { artId, name, text ->
-                                            viewModel.addComment(artId, name, text)
-                                        },
-                                        onShowToast = { viewModel.showToast(it) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-
-                                NavigationScreen.LEGAL -> {
-                                    LegalScreen(
-                                        pageTitle = legalPageTitle,
-                                        onBack = { viewModel.navigateTo(NavigationScreen.HOME) },
-                                        onNavigateLegal = { viewModel.openLegalPage(it) },
-                                        onSubscribeNewsletter = { viewModel.subscribeNewsletter(it) }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }

@@ -1,8 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
-  Sparkles, Palette, Wrench, Brain, ArrowRight, Clock, Menu, X, ShieldCheck,
+  Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X, ShieldCheck,
 } from 'lucide-react';
+import { ROADMAPS, BLOG_POSTS } from './data.js';
+
+const ICONS = { Shield, Palette, Wrench, Brain };
 
 /* ----------------------------- shared styles ----------------------------- */
 const GlobalStyle = () => (
@@ -34,9 +37,6 @@ function pathFromPoints(points) {
   return d;
 }
 
-// Turns raw node content + a list of completed ids into nodes with a derived
-// status. Nothing is "done" until the user actually completes it, and only
-// the first not-yet-completed node is unlocked ('current') at any time.
 function deriveNodes(nodes, doneIds) {
   let unlockedAssigned = false;
   return nodes.map((n) => {
@@ -52,6 +52,7 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
   const [selectedId, setSelectedId] = useState(
     nodes.find((n) => n.status === 'current')?.id ?? nodes[0].id
   );
+  const [readingId, setReadingId] = useState(null);
   const ROW_H = 128, TOP_PAD = 60, WIDTH = 400;
   const height = TOP_PAD + nodes.length * ROW_H + 30;
 
@@ -63,6 +64,15 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
   const doneCount = nodes.filter((n) => n.status === 'done').length;
   const pct = Math.round((doneCount / nodes.length) * 100);
   const selected = nodes.find((n) => n.id === selectedId) ?? nodes[0];
+  const reading = readingId != null ? nodes.find((n) => n.id === readingId) : null;
+
+  const handleComplete = (nodeId) => {
+    onComplete(nodeId);
+    setReadingId(null);
+    const idx = nodes.findIndex((n) => n.id === nodeId);
+    const next = nodes[idx + 1];
+    if (next) setSelectedId(next.id);
+  };
 
   return (
     <div className="af-body">
@@ -82,49 +92,51 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
         </div>
       </div>
 
-      <div className="max-w-sm mx-auto" style={{ aspectRatio: `${WIDTH} / ${height}` }}>
-        <svg viewBox={`0 0 ${WIDTH} ${height}`} width="100%" height="100%">
-          <path d={pathD} fill="none" stroke="#E4E4E7" strokeWidth="5" strokeLinecap="round" />
-          <path
-            d={pathD} fill="none" stroke={accent} strokeWidth="5" strokeLinecap="round"
-            pathLength="1" className="af-draw"
-            style={{ strokeDasharray: `${doneCount / Math.max(nodes.length - 1, 1)} 1` }}
-          />
-          {points.map((p, i) => {
-            const node = nodes[i];
-            const isDone = node.status === 'done', isCurrent = node.status === 'current', isLocked = node.status === 'locked';
-            const r = isCurrent ? 25 : 22;
-            return (
-              <g key={node.id}>
-                {isCurrent && <circle cx={p.x} cy={p.y} r={r} fill={accent} className="af-pulse" />}
-                <foreignObject x={p.x - r} y={p.y - r} width={r * 2} height={r * 2}>
-                  <button
-                    onClick={() => !isLocked && setSelectedId(node.id)}
-                    disabled={isLocked}
-                    aria-label={node.title}
-                    className="af-node"
-                    style={{
-                      width: '100%', height: '100%', borderRadius: '9999px', display: 'flex',
-                      alignItems: 'center', justifyContent: 'center',
-                      border: `2.5px solid ${isLocked ? '#D4D4D8' : accent}`,
-                      background: isDone || isCurrent ? accent : '#FFFFFF',
-                      cursor: isLocked ? 'not-allowed' : 'pointer',
-                      boxShadow: selectedId === node.id && !isLocked ? `0 0 0 4px ${accent}33` : 'none',
-                    }}
-                  >
-                    {isLocked && <Lock size={15} color="#A1A1AA" strokeWidth={2.3} />}
-                    {isDone && !node.capstone && <Check size={17} color="#FFFFFF" strokeWidth={3} />}
-                    {isCurrent && <Play size={14} color="#FFFFFF" strokeWidth={2.5} fill="#FFFFFF" />}
-                    {node.capstone && !isLocked && <Trophy size={16} color="#FFFFFF" strokeWidth={2.3} />}
-                  </button>
-                </foreignObject>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+      {!reading && (
+        <div className="max-w-sm mx-auto" style={{ aspectRatio: `${WIDTH} / ${height}` }}>
+          <svg viewBox={`0 0 ${WIDTH} ${height}`} width="100%" height="100%">
+            <path d={pathD} fill="none" stroke="#E4E4E7" strokeWidth="5" strokeLinecap="round" />
+            <path
+              d={pathD} fill="none" stroke={accent} strokeWidth="5" strokeLinecap="round"
+              pathLength="1" className="af-draw"
+              style={{ strokeDasharray: `${doneCount / Math.max(nodes.length - 1, 1)} 1` }}
+            />
+            {points.map((p, i) => {
+              const node = nodes[i];
+              const isDone = node.status === 'done', isCurrent = node.status === 'current', isLocked = node.status === 'locked';
+              const r = isCurrent ? 25 : 22;
+              return (
+                <g key={node.id}>
+                  {isCurrent && <circle cx={p.x} cy={p.y} r={r} fill={accent} className="af-pulse" />}
+                  <foreignObject x={p.x - r} y={p.y - r} width={r * 2} height={r * 2}>
+                    <button
+                      onClick={() => !isLocked && setSelectedId(node.id)}
+                      disabled={isLocked}
+                      aria-label={node.title}
+                      className="af-node"
+                      style={{
+                        width: '100%', height: '100%', borderRadius: '9999px', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                        border: `2.5px solid ${isLocked ? '#D4D4D8' : accent}`,
+                        background: isDone || isCurrent ? accent : '#FFFFFF',
+                        cursor: isLocked ? 'not-allowed' : 'pointer',
+                        boxShadow: selectedId === node.id && !isLocked ? `0 0 0 4px ${accent}33` : 'none',
+                      }}
+                    >
+                      {isLocked && <Lock size={15} color="#A1A1AA" strokeWidth={2.3} />}
+                      {isDone && !node.capstone && <Check size={17} color="#FFFFFF" strokeWidth={3} />}
+                      {isCurrent && <Play size={14} color="#FFFFFF" strokeWidth={2.5} fill="#FFFFFF" />}
+                      {node.capstone && !isLocked && <Trophy size={16} color="#FFFFFF" strokeWidth={2.3} />}
+                    </button>
+                  </foreignObject>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      )}
 
-      {selected && (
+      {!reading && selected && (
         <div className="max-w-sm mx-auto mt-1">
           <div className="bg-white rounded-2xl border border-zinc-200 p-4">
             <div className="flex items-start justify-between gap-3 mb-1">
@@ -139,15 +151,23 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
             <p className="text-xs text-zinc-500 leading-relaxed mb-3">{selected.desc}</p>
             {selected.status === 'current' && (
               <button
-                onClick={() => onComplete(selected.id)}
-                className="text-xs font-semibold text-white px-3.5 py-2 rounded-lg"
+                onClick={() => setReadingId(selected.id)}
+                className="text-xs font-semibold text-white px-3.5 py-2 rounded-lg flex items-center gap-1.5"
                 style={{ background: accent }}
               >
-                Mark lesson complete
+                <Play size={12} fill="#fff" /> Start lesson
               </button>
             )}
             {selected.status === 'done' && (
-              <p className="text-[11px] font-semibold" style={{ color: accent }}>\u2713 Completed \u2014 next lesson is unlocked below.</p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setReadingId(selected.id)}
+                  className="text-xs font-semibold px-3.5 py-2 rounded-lg border"
+                  style={{ borderColor: accent, color: accent }}
+                >
+                  Review lesson
+                </button>
+              </div>
             )}
             {selected.status === 'locked' && (
               <p className="text-[11px] text-zinc-400">Complete the lesson above to unlock this.</p>
@@ -155,70 +175,40 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
           </div>
         </div>
       )}
+
+      {reading && (
+        <div className="max-w-sm mx-auto">
+          <button
+            onClick={() => setReadingId(null)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-3"
+          >
+            <ArrowLeft size={13} /> Back to path
+          </button>
+          <div className="bg-white rounded-2xl border border-zinc-200 p-5">
+            <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: accent }}>Lesson</span>
+            <h3 className="af-display font-bold text-zinc-900 text-lg mt-1 mb-3">{reading.title}</h3>
+            <div className="space-y-3 mb-5">
+              {(reading.content || [reading.desc]).map((p, i) => (
+                <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>
+              ))}
+            </div>
+            {reading.status !== 'done' ? (
+              <button
+                onClick={() => handleComplete(reading.id)}
+                className="text-xs font-semibold text-white px-4 py-2.5 rounded-lg flex items-center gap-1.5"
+                style={{ background: accent }}
+              >
+                <Check size={13} strokeWidth={3} /> Mark lesson complete
+              </button>
+            ) : (
+              <p className="text-[11px] font-semibold" style={{ color: accent }}>\u2713 Already completed</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-/* --------------------------------- data ---------------------------------- */
-// Content only \u2014 no status here. Every user starts at zero; progress is
-// tracked separately in App state and derived with deriveNodes().
-const ROADMAPS = {
-  cybersecurity: {
-    title: 'Cybersecurity Fundamentals', subtitle: 'From security basics to hardening a real app', accent: '#4338CA', Icon: Shield,
-    nodes: [
-      { id: 1, title: 'Security Mindset 101', desc: 'Threat modeling: assets, actors, attack surfaces.' },
-      { id: 2, title: 'Password & Auth Hygiene', desc: 'Hashing, salting, MFA \u2014 and why weak reuse fails.' },
-      { id: 3, title: 'Network Fundamentals', desc: 'TCP/IP, firewalls, and how traffic actually moves.' },
-      { id: 4, title: 'OWASP Top 10 Overview', desc: 'The most common web app vulnerability classes.' },
-      { id: 5, title: 'SQL Injection & Input Validation', desc: 'How injection happens, and how parameterized queries stop it.' },
-      { id: 6, title: 'Cross-Site Scripting (XSS)', desc: 'Stored vs reflected XSS, and safe output encoding.' },
-      { id: 7, title: 'Social Engineering & Phishing', desc: 'Spotting pretexting, spoofed domains, urgency tricks.' },
-      { id: 8, title: 'Incident Response Basics', desc: 'Contain, eradicate, recover \u2014 the first-hour checklist.' },
-      { id: 9, title: 'Capstone: Harden a Sample App', desc: 'Apply it all to lock down a deliberately vulnerable demo.', capstone: true },
-    ],
-  },
-  ai: {
-    title: 'AI & Machine Learning', subtitle: 'From prompting basics to shipping an AI feature', accent: '#7C3AED', Icon: Brain,
-    nodes: [
-      { id: 1, title: 'What LLMs Actually Do', desc: 'Tokens, context windows, and why models hallucinate.' },
-      { id: 2, title: 'Prompting Fundamentals', desc: 'Clear instructions, examples, and structured output.' },
-      { id: 3, title: 'Retrieval-Augmented Generation', desc: 'Grounding responses in your own documents.' },
-      { id: 4, title: 'Tool Use & Agents', desc: 'Letting a model call functions and take actions.' },
-      { id: 5, title: 'Evaluating Model Output', desc: 'Building test sets so quality is measurable.' },
-      { id: 6, title: 'Capstone: Ship an AI Feature', desc: 'Wire a model into a real product flow.', capstone: true },
-    ],
-  },
-  design: {
-    title: 'Graphic Design Essentials', subtitle: 'From color theory to a portfolio-ready piece', accent: '#D97706', Icon: Palette,
-    nodes: [
-      { id: 1, title: 'Color Theory Basics', desc: 'Contrast, harmony, and building a palette that works.' },
-      { id: 2, title: 'Typography Foundations', desc: 'Pairing typefaces and setting a real type scale.' },
-      { id: 3, title: 'Layout & Grid Systems', desc: 'Structuring a page so the eye knows where to go.' },
-      { id: 4, title: 'Branding & Identity', desc: 'Logos, marks, and consistent visual voice.' },
-      { id: 5, title: 'Capstone: Design a Brand Kit', desc: 'Ship a small, cohesive identity system.', capstone: true },
-    ],
-  },
-  tools: {
-    title: 'Tools & Productivity Tips', subtitle: 'The workflow shortcuts that actually save time', accent: '#059669', Icon: Wrench,
-    nodes: [
-      { id: 1, title: 'Keyboard-First Workflows', desc: 'Cutting mouse trips out of your daily routine.' },
-      { id: 2, title: 'Automation Basics', desc: 'When a script beats a repeated manual task.' },
-      { id: 3, title: 'Version Control Habits', desc: 'Commits, branches, and not fearing git.' },
-      { id: 4, title: 'Capstone: Automate a Chore', desc: 'Build one real automation you\u2019ll keep using.', capstone: true },
-    ],
-  },
-};
-
-const BLOG_POSTS = [
-  { id: 1, cat: 'Cybersecurity', accent: '#4338CA', title: 'SQL Injection, Explained Without the Jargon', excerpt: 'What actually happens when input isn\u2019t sanitized, and why parameterized queries fix it for good.', author: 'Philemon', readTime: '5 min read', seed: 'cyber1' },
-  { id: 2, cat: 'Cybersecurity', accent: '#4338CA', title: 'Phishing Emails: The Five Tells', excerpt: 'Domain spoofing, urgency language, and other patterns worth training your eye on.', author: 'Philemon', readTime: '4 min read', seed: 'cyber2' },
-  { id: 3, cat: 'AI & ML', accent: '#7C3AED', title: 'Prompting Like You Mean It', excerpt: 'Structure, examples, and constraints \u2014 the three levers that actually move output quality.', author: 'Philemon', readTime: '6 min read', seed: 'ai1' },
-  { id: 4, cat: 'AI & ML', accent: '#7C3AED', title: 'RAG in Plain English', excerpt: 'How retrieval-augmented generation keeps a model grounded in your own data.', author: 'Philemon', readTime: '5 min read', seed: 'ai2' },
-  { id: 5, cat: 'Graphic Design', accent: '#D97706', title: 'Picking a Palette That Isn\u2019t Generic', excerpt: 'A quick framework for choosing 4\u20136 colors that actually say something.', author: 'Philemon', readTime: '4 min read', seed: 'design1' },
-  { id: 6, cat: 'Graphic Design', accent: '#D97706', title: 'Type Pairing 101', excerpt: 'How to combine a display face and a body face without it looking accidental.', author: 'Philemon', readTime: '5 min read', seed: 'design2' },
-  { id: 7, cat: 'Tools', accent: '#059669', title: 'Automate the Boring 20%', excerpt: 'A simple test for deciding when a repeated task is worth scripting.', author: 'Philemon', readTime: '3 min read', seed: 'tools1' },
-  { id: 8, cat: 'Tools', accent: '#059669', title: 'Git Habits That Save Future You', excerpt: 'Small commit discipline that makes debugging six months from now painless.', author: 'Philemon', readTime: '4 min read', seed: 'tools2' },
-];
 
 /* --------------------------------- pages ---------------------------------- */
 function Header({ page, setPage, menuOpen, setMenuOpen }) {
@@ -297,6 +287,7 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Object.entries(ROADMAPS).map(([key, r]) => {
             const doneCount = (progress[key] || []).length;
+            const Icon = ICONS[r.iconName];
             return (
               <button
                 key={key}
@@ -304,7 +295,7 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
                 className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4"
               >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${r.accent}1A` }}>
-                  <r.Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
+                  <Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
                 </div>
                 <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1">{r.title}</h3>
                 <p className="text-xs text-zinc-500">{doneCount}/{r.nodes.length} lessons \u00b7 {doneCount === 0 ? 'not started' : 'in progress'}</p>
@@ -322,16 +313,16 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
           </button>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          {BLOG_POSTS.slice(0, 3).map((p) => <BlogCard key={p.id} post={p} />)}
+          {BLOG_POSTS.slice(0, 3).map((p) => <BlogCard key={p.id} post={p} onOpen={() => { setPage('blog'); }} />)}
         </div>
       </section>
     </div>
   );
 }
 
-function BlogCard({ post }) {
+function BlogCard({ post, onOpen }) {
   return (
-    <article className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+    <article onClick={onOpen} className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer">
       <img src={`https://picsum.photos/seed/${post.seed}/480/280`} alt="" className="w-full h-36 object-cover" />
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
@@ -342,21 +333,45 @@ function BlogCard({ post }) {
         <p className="text-xs text-zinc-500 leading-relaxed mb-3">{post.excerpt}</p>
         <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-3 border-t border-zinc-100">
           <span>{post.author}</span>
-          <span className="font-semibold" style={{ color: post.accent }}>Read \u2192</span>
+          <span className="font-semibold" style={{ color: post.accent }}>Read more \u2192</span>
         </div>
       </div>
     </article>
   );
 }
 
+function BlogPostDetail({ post, onBack }) {
+  return (
+    <div className="max-w-2xl mx-auto px-5 py-10">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-5">
+        <ArrowLeft size={13} /> Back to blog
+      </button>
+      <img src={`https://picsum.photos/seed/${post.seed}/900/420`} alt="" className="w-full h-56 object-cover rounded-2xl mb-6" />
+      <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
+      <h1 className="af-display text-2xl font-bold text-zinc-900 mt-1.5 mb-2">{post.title}</h1>
+      <div className="flex items-center gap-3 text-xs text-zinc-400 mb-6">
+        <span>{post.author}</span><span>\u00b7</span><span>{post.date}</span><span>\u00b7</span><span>{post.readTime}</span>
+      </div>
+      <div className="space-y-4">
+        {post.content.map((p, i) => (
+          <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BlogPage() {
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('All');
+  const [openPost, setOpenPost] = useState(null);
   const cats = ['All', ...new Set(BLOG_POSTS.map((p) => p.cat))];
   const filtered = BLOG_POSTS.filter((p) =>
     (cat === 'All' || p.cat === cat) &&
     (p.title.toLowerCase().includes(query.toLowerCase()) || p.excerpt.toLowerCase().includes(query.toLowerCase()))
   );
+
+  if (openPost) return <BlogPostDetail post={openPost} onBack={() => setOpenPost(null)} />;
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-10">
@@ -385,7 +400,7 @@ function BlogPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((p) => <BlogCard key={p.id} post={p} />)}
+        {filtered.map((p) => <BlogCard key={p.id} post={p} onOpen={() => setOpenPost(p)} />)}
         {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No posts match that search.</p>}
       </div>
     </div>
@@ -395,30 +410,34 @@ function BlogPage() {
 function RoadmapsPage({ active, setActive, progress, onComplete }) {
   const track = ROADMAPS[active];
   const nodes = deriveNodes(track.nodes, progress[active] || []);
+  const Icon = ICONS[track.iconName];
   return (
     <div className="max-w-3xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Roadmaps</h1>
       <p className="text-sm text-zinc-500 mb-6">Pick a track and work top to bottom. Everything starts locked except the first lesson.</p>
       <div className="flex gap-2 mb-8 flex-wrap">
-        {Object.entries(ROADMAPS).map(([key, r]) => (
-          <button
-            key={key}
-            onClick={() => setActive(key)}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
-            style={active === key
-              ? { background: r.accent, borderColor: r.accent, color: '#fff' }
-              : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}
-          >
-            <r.Icon size={14} /> {r.title.split(' ')[0]}
-          </button>
-        ))}
+        {Object.entries(ROADMAPS).map(([key, r]) => {
+          const TabIcon = ICONS[r.iconName];
+          return (
+            <button
+              key={key}
+              onClick={() => setActive(key)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
+              style={active === key
+                ? { background: r.accent, borderColor: r.accent, color: '#fff' }
+                : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}
+            >
+              <TabIcon size={14} /> {r.title.split(' ')[0]}
+            </button>
+          );
+        })}
       </div>
       <div className="bg-white border border-zinc-200 rounded-3xl p-6">
         <RoadmapPath
           title={track.title}
           subtitle={track.subtitle}
           accent={track.accent}
-          Icon={track.Icon}
+          Icon={Icon}
           nodes={nodes}
           onComplete={(nodeId) => onComplete(active, nodeId)}
         />
@@ -508,7 +527,9 @@ function Footer() {
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
         <p>\u00A9 2026 Acarpo Web \u2014 built by Drenchack Tech Company</p>
         <div className="flex gap-4">
-         <a href="github.com/philemon12421" className="hover:text-zinc-700">GitHub</a>
+          <a href="#twitter" className="hover:text-zinc-700">Twitter / X</a>
+          <a href="#github" className="hover:text-zinc-700">GitHub</a>
+          <a href="#discord" className="hover:text-zinc-700">Discord</a>
         </div>
       </div>
     </footer>
@@ -520,7 +541,6 @@ export default function App() {
   const [page, setPage] = useState('home');
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeRoadmap, setActiveRoadmap] = useState('cybersecurity');
-  // progress[track] = array of completed node ids. Everyone starts at zero.
   const [progress, setProgress] = useState({ cybersecurity: [], ai: [], design: [], tools: [] });
 
   const handleComplete = (trackKey, nodeId) => {

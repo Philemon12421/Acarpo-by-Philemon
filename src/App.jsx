@@ -508,9 +508,7 @@ function Footer() {
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
         <p>\u00A9 2026 Acarpo Web \u2014 built by Drenchack Tech Company</p>
         <div className="flex gap-4">
-          <a href="#twitter" className="hover:text-zinc-700">Twitter / X</a>
-          <a href="#github" className="hover:text-zinc-700">GitHub</a>
-          <a href="#discord" className="hover:text-zinc-700">Discord</a>
+         <a href="github.com/philemon12421" className="hover:text-zinc-700">GitHub</a>
         </div>
       </div>
     </footer>

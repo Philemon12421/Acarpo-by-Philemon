@@ -34,8 +34,21 @@ function pathFromPoints(points) {
   return d;
 }
 
-function RoadmapPath({ data }) {
-  const { title, subtitle, accent, nodes, Icon } = data;
+// Turns raw node content + a list of completed ids into nodes with a derived
+// status. Nothing is "done" until the user actually completes it, and only
+// the first not-yet-completed node is unlocked ('current') at any time.
+function deriveNodes(nodes, doneIds) {
+  let unlockedAssigned = false;
+  return nodes.map((n) => {
+    const isDone = doneIds.includes(n.id);
+    let status = 'locked';
+    if (isDone) status = 'done';
+    else if (!unlockedAssigned) { status = 'current'; unlockedAssigned = true; }
+    return { ...n, status };
+  });
+}
+
+function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
   const [selectedId, setSelectedId] = useState(
     nodes.find((n) => n.status === 'current')?.id ?? nodes[0].id
   );
@@ -49,7 +62,7 @@ function RoadmapPath({ data }) {
   const pathD = pathFromPoints(points);
   const doneCount = nodes.filter((n) => n.status === 'done').length;
   const pct = Math.round((doneCount / nodes.length) * 100);
-  const selected = nodes.find((n) => n.id === selectedId);
+  const selected = nodes.find((n) => n.id === selectedId) ?? nodes[0];
 
   return (
     <div className="af-body">
@@ -120,16 +133,24 @@ function RoadmapPath({ data }) {
                 className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0"
                 style={{ background: selected.status === 'locked' ? '#F4F4F5' : `${accent}1A`, color: selected.status === 'locked' ? '#A1A1AA' : accent }}
               >
-                {selected.status === 'done' ? 'Completed' : selected.status === 'current' ? 'In progress' : 'Locked'}
+                {selected.status === 'done' ? 'Completed' : selected.status === 'current' ? 'Not started' : 'Locked'}
               </span>
             </div>
             <p className="text-xs text-zinc-500 leading-relaxed mb-3">{selected.desc}</p>
-            {selected.status !== 'locked' ? (
-              <button className="text-xs font-semibold text-white px-3.5 py-2 rounded-lg" style={{ background: accent }}>
-                {selected.status === 'done' ? 'Review lesson' : 'Continue lesson'}
+            {selected.status === 'current' && (
+              <button
+                onClick={() => onComplete(selected.id)}
+                className="text-xs font-semibold text-white px-3.5 py-2 rounded-lg"
+                style={{ background: accent }}
+              >
+                Mark lesson complete
               </button>
-            ) : (
-              <p className="text-[11px] text-zinc-400">Finish the lesson above to unlock this.</p>
+            )}
+            {selected.status === 'done' && (
+              <p className="text-[11px] font-semibold" style={{ color: accent }}>\u2713 Completed \u2014 next lesson is unlocked below.</p>
+            )}
+            {selected.status === 'locked' && (
+              <p className="text-[11px] text-zinc-400">Complete the lesson above to unlock this.</p>
             )}
           </div>
         </div>
@@ -139,49 +160,51 @@ function RoadmapPath({ data }) {
 }
 
 /* --------------------------------- data ---------------------------------- */
+// Content only \u2014 no status here. Every user starts at zero; progress is
+// tracked separately in App state and derived with deriveNodes().
 const ROADMAPS = {
   cybersecurity: {
     title: 'Cybersecurity Fundamentals', subtitle: 'From security basics to hardening a real app', accent: '#4338CA', Icon: Shield,
     nodes: [
-      { id: 1, title: 'Security Mindset 101', desc: 'Threat modeling: assets, actors, attack surfaces.', status: 'done' },
-      { id: 2, title: 'Password & Auth Hygiene', desc: 'Hashing, salting, MFA — and why weak reuse fails.', status: 'done' },
-      { id: 3, title: 'Network Fundamentals', desc: 'TCP/IP, firewalls, and how traffic actually moves.', status: 'current' },
-      { id: 4, title: 'OWASP Top 10 Overview', desc: 'The most common web app vulnerability classes.', status: 'locked' },
-      { id: 5, title: 'SQL Injection & Input Validation', desc: 'How injection happens, and how parameterized queries stop it.', status: 'locked' },
-      { id: 6, title: 'Cross-Site Scripting (XSS)', desc: 'Stored vs reflected XSS, and safe output encoding.', status: 'locked' },
-      { id: 7, title: 'Social Engineering & Phishing', desc: 'Spotting pretexting, spoofed domains, urgency tricks.', status: 'locked' },
-      { id: 8, title: 'Incident Response Basics', desc: 'Contain, eradicate, recover — the first-hour checklist.', status: 'locked' },
-      { id: 9, title: 'Capstone: Harden a Sample App', desc: 'Apply it all to lock down a deliberately vulnerable demo.', status: 'locked', capstone: true },
+      { id: 1, title: 'Security Mindset 101', desc: 'Threat modeling: assets, actors, attack surfaces.' },
+      { id: 2, title: 'Password & Auth Hygiene', desc: 'Hashing, salting, MFA \u2014 and why weak reuse fails.' },
+      { id: 3, title: 'Network Fundamentals', desc: 'TCP/IP, firewalls, and how traffic actually moves.' },
+      { id: 4, title: 'OWASP Top 10 Overview', desc: 'The most common web app vulnerability classes.' },
+      { id: 5, title: 'SQL Injection & Input Validation', desc: 'How injection happens, and how parameterized queries stop it.' },
+      { id: 6, title: 'Cross-Site Scripting (XSS)', desc: 'Stored vs reflected XSS, and safe output encoding.' },
+      { id: 7, title: 'Social Engineering & Phishing', desc: 'Spotting pretexting, spoofed domains, urgency tricks.' },
+      { id: 8, title: 'Incident Response Basics', desc: 'Contain, eradicate, recover \u2014 the first-hour checklist.' },
+      { id: 9, title: 'Capstone: Harden a Sample App', desc: 'Apply it all to lock down a deliberately vulnerable demo.', capstone: true },
     ],
   },
   ai: {
     title: 'AI & Machine Learning', subtitle: 'From prompting basics to shipping an AI feature', accent: '#7C3AED', Icon: Brain,
     nodes: [
-      { id: 1, title: 'What LLMs Actually Do', desc: 'Tokens, context windows, and why models hallucinate.', status: 'done' },
-      { id: 2, title: 'Prompting Fundamentals', desc: 'Clear instructions, examples, and structured output.', status: 'current' },
-      { id: 3, title: 'Retrieval-Augmented Generation', desc: 'Grounding responses in your own documents.', status: 'locked' },
-      { id: 4, title: 'Tool Use & Agents', desc: 'Letting a model call functions and take actions.', status: 'locked' },
-      { id: 5, title: 'Evaluating Model Output', desc: 'Building test sets so quality is measurable.', status: 'locked' },
-      { id: 6, title: 'Capstone: Ship an AI Feature', desc: 'Wire a model into a real product flow.', status: 'locked', capstone: true },
+      { id: 1, title: 'What LLMs Actually Do', desc: 'Tokens, context windows, and why models hallucinate.' },
+      { id: 2, title: 'Prompting Fundamentals', desc: 'Clear instructions, examples, and structured output.' },
+      { id: 3, title: 'Retrieval-Augmented Generation', desc: 'Grounding responses in your own documents.' },
+      { id: 4, title: 'Tool Use & Agents', desc: 'Letting a model call functions and take actions.' },
+      { id: 5, title: 'Evaluating Model Output', desc: 'Building test sets so quality is measurable.' },
+      { id: 6, title: 'Capstone: Ship an AI Feature', desc: 'Wire a model into a real product flow.', capstone: true },
     ],
   },
   design: {
     title: 'Graphic Design Essentials', subtitle: 'From color theory to a portfolio-ready piece', accent: '#D97706', Icon: Palette,
     nodes: [
-      { id: 1, title: 'Color Theory Basics', desc: 'Contrast, harmony, and building a palette that works.', status: 'done' },
-      { id: 2, title: 'Typography Foundations', desc: 'Pairing typefaces and setting a real type scale.', status: 'current' },
-      { id: 3, title: 'Layout & Grid Systems', desc: 'Structuring a page so the eye knows where to go.', status: 'locked' },
-      { id: 4, title: 'Branding & Identity', desc: 'Logos, marks, and consistent visual voice.', status: 'locked' },
-      { id: 5, title: 'Capstone: Design a Brand Kit', desc: 'Ship a small, cohesive identity system.', status: 'locked', capstone: true },
+      { id: 1, title: 'Color Theory Basics', desc: 'Contrast, harmony, and building a palette that works.' },
+      { id: 2, title: 'Typography Foundations', desc: 'Pairing typefaces and setting a real type scale.' },
+      { id: 3, title: 'Layout & Grid Systems', desc: 'Structuring a page so the eye knows where to go.' },
+      { id: 4, title: 'Branding & Identity', desc: 'Logos, marks, and consistent visual voice.' },
+      { id: 5, title: 'Capstone: Design a Brand Kit', desc: 'Ship a small, cohesive identity system.', capstone: true },
     ],
   },
   tools: {
     title: 'Tools & Productivity Tips', subtitle: 'The workflow shortcuts that actually save time', accent: '#059669', Icon: Wrench,
     nodes: [
-      { id: 1, title: 'Keyboard-First Workflows', desc: 'Cutting mouse trips out of your daily routine.', status: 'done' },
-      { id: 2, title: 'Automation Basics', desc: 'When a script beats a repeated manual task.', status: 'current' },
-      { id: 3, title: 'Version Control Habits', desc: 'Commits, branches, and not fearing git.', status: 'locked' },
-      { id: 4, title: 'Capstone: Automate a Chore', desc: 'Build one real automation you\u2019ll keep using.', status: 'locked', capstone: true },
+      { id: 1, title: 'Keyboard-First Workflows', desc: 'Cutting mouse trips out of your daily routine.' },
+      { id: 2, title: 'Automation Basics', desc: 'When a script beats a repeated manual task.' },
+      { id: 3, title: 'Version Control Habits', desc: 'Commits, branches, and not fearing git.' },
+      { id: 4, title: 'Capstone: Automate a Chore', desc: 'Build one real automation you\u2019ll keep using.', capstone: true },
     ],
   },
 };
@@ -189,7 +212,7 @@ const ROADMAPS = {
 const BLOG_POSTS = [
   { id: 1, cat: 'Cybersecurity', accent: '#4338CA', title: 'SQL Injection, Explained Without the Jargon', excerpt: 'What actually happens when input isn\u2019t sanitized, and why parameterized queries fix it for good.', author: 'Philemon', readTime: '5 min read', seed: 'cyber1' },
   { id: 2, cat: 'Cybersecurity', accent: '#4338CA', title: 'Phishing Emails: The Five Tells', excerpt: 'Domain spoofing, urgency language, and other patterns worth training your eye on.', author: 'Philemon', readTime: '4 min read', seed: 'cyber2' },
-  { id: 3, cat: 'AI & ML', accent: '#7C3AED', title: 'Prompting Like You Mean It', excerpt: 'Structure, examples, and constraints — the three levers that actually move output quality.', author: 'Philemon', readTime: '6 min read', seed: 'ai1' },
+  { id: 3, cat: 'AI & ML', accent: '#7C3AED', title: 'Prompting Like You Mean It', excerpt: 'Structure, examples, and constraints \u2014 the three levers that actually move output quality.', author: 'Philemon', readTime: '6 min read', seed: 'ai1' },
   { id: 4, cat: 'AI & ML', accent: '#7C3AED', title: 'RAG in Plain English', excerpt: 'How retrieval-augmented generation keeps a model grounded in your own data.', author: 'Philemon', readTime: '5 min read', seed: 'ai2' },
   { id: 5, cat: 'Graphic Design', accent: '#D97706', title: 'Picking a Palette That Isn\u2019t Generic', excerpt: 'A quick framework for choosing 4\u20136 colors that actually say something.', author: 'Philemon', readTime: '4 min read', seed: 'design1' },
   { id: 6, cat: 'Graphic Design', accent: '#D97706', title: 'Type Pairing 101', excerpt: 'How to combine a display face and a body face without it looking accidental.', author: 'Philemon', readTime: '5 min read', seed: 'design2' },
@@ -246,7 +269,7 @@ function Header({ page, setPage, menuOpen, setMenuOpen }) {
   );
 }
 
-function HomePage({ setPage }) {
+function HomePage({ setPage, setActiveRoadmap, progress }) {
   return (
     <div className="max-w-5xl mx-auto px-5 py-10 space-y-12">
       <section className="bg-zinc-50 border border-zinc-200 rounded-3xl p-8 md:p-10">
@@ -272,19 +295,22 @@ function HomePage({ setPage }) {
       <section>
         <h2 className="af-display text-lg font-bold text-zinc-900 mb-4">Pick a track</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Object.entries(ROADMAPS).map(([key, r]) => (
-            <button
-              key={key}
-              onClick={() => setPage('roadmaps')}
-              className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4"
-            >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${r.accent}1A` }}>
-                <r.Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
-              </div>
-              <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1">{r.title}</h3>
-              <p className="text-xs text-zinc-500">{r.nodes.length} lessons</p>
-            </button>
-          ))}
+          {Object.entries(ROADMAPS).map(([key, r]) => {
+            const doneCount = (progress[key] || []).length;
+            return (
+              <button
+                key={key}
+                onClick={() => { setActiveRoadmap(key); setPage('roadmaps'); }}
+                className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${r.accent}1A` }}>
+                  <r.Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
+                </div>
+                <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1">{r.title}</h3>
+                <p className="text-xs text-zinc-500">{doneCount}/{r.nodes.length} lessons \u00b7 {doneCount === 0 ? 'not started' : 'in progress'}</p>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -366,12 +392,13 @@ function BlogPage() {
   );
 }
 
-function RoadmapsPage() {
-  const [active, setActive] = useState('cybersecurity');
+function RoadmapsPage({ active, setActive, progress, onComplete }) {
+  const track = ROADMAPS[active];
+  const nodes = deriveNodes(track.nodes, progress[active] || []);
   return (
     <div className="max-w-3xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Roadmaps</h1>
-      <p className="text-sm text-zinc-500 mb-6">Pick a track and work top to bottom.</p>
+      <p className="text-sm text-zinc-500 mb-6">Pick a track and work top to bottom. Everything starts locked except the first lesson.</p>
       <div className="flex gap-2 mb-8 flex-wrap">
         {Object.entries(ROADMAPS).map(([key, r]) => (
           <button
@@ -387,7 +414,14 @@ function RoadmapsPage() {
         ))}
       </div>
       <div className="bg-white border border-zinc-200 rounded-3xl p-6">
-        <RoadmapPath data={ROADMAPS[active]} />
+        <RoadmapPath
+          title={track.title}
+          subtitle={track.subtitle}
+          accent={track.accent}
+          Icon={track.Icon}
+          nodes={nodes}
+          onComplete={(nodeId) => onComplete(active, nodeId)}
+        />
       </div>
     </div>
   );
@@ -487,14 +521,26 @@ function Footer() {
 export default function App() {
   const [page, setPage] = useState('home');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeRoadmap, setActiveRoadmap] = useState('cybersecurity');
+  // progress[track] = array of completed node ids. Everyone starts at zero.
+  const [progress, setProgress] = useState({ cybersecurity: [], ai: [], design: [], tools: [] });
+
+  const handleComplete = (trackKey, nodeId) => {
+    setProgress((prev) => ({
+      ...prev,
+      [trackKey]: prev[trackKey].includes(nodeId) ? prev[trackKey] : [...prev[trackKey], nodeId],
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 af-body">
       <GlobalStyle />
       <Header page={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-      {page === 'home' && <HomePage setPage={setPage} />}
+      {page === 'home' && <HomePage setPage={setPage} setActiveRoadmap={setActiveRoadmap} progress={progress} />}
       {page === 'blog' && <BlogPage />}
-      {page === 'roadmaps' && <RoadmapsPage />}
+      {page === 'roadmaps' && (
+        <RoadmapsPage active={activeRoadmap} setActive={setActiveRoadmap} progress={progress} onComplete={handleComplete} />
+      )}
       {page === 'auth' && <AuthPage />}
       <Footer />
     </div>

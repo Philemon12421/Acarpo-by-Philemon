@@ -11,6 +11,7 @@ import { LINKS } from './linksData.js';
 const ICONS = { Shield, Palette, Wrench, Brain };
 const SITE_NAME = 'Acarpo';
 
+
 /* ----------------------------- shared styles ----------------------------- */
 const GlobalStyle = () => (
   <style>{`

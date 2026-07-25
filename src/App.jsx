@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
-  ShieldCheck, ExternalLink, Link2,
+  ExternalLink, Link2,
 } from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
@@ -489,60 +489,112 @@ function RoadmapsPage({ active, setActive, progress, onComplete }) {
 }
 
 /* --------------------------------- auth ---------------------------------- */
-const SECURITY_TIPS = [
-  'Use a password manager and unique passwords per site',
-  'Turn on multi-factor authentication everywhere it\u2019s offered',
-  'Check the sender domain before clicking any link in email',
-  'Keep your OS and browser updated \u2014 patches close real holes',
-  'Never enter credentials on a page you reached via a link, type the URL',
-];
-
 function AuthPage() {
   const [mode, setMode] = useState('signin');
   const [showPw, setShowPw] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+
   return (
-    <div className="max-w-4xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-8 items-start">
-      <div className="bg-white border border-zinc-200 rounded-3xl p-7">
-        <div className="flex gap-1 bg-zinc-100 p-1 rounded-xl mb-6 w-fit">
-          <button onClick={() => setMode('signin')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold ${mode === 'signin' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign in</button>
-          <button onClick={() => setMode('signup')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold ${mode === 'signup' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign up</button>
+    <div className="max-w-4xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-6 items-stretch">
+      {/* form */}
+      <div className="bg-white border border-zinc-200 rounded-3xl p-7 md:p-8">
+        <div className="flex gap-1 bg-zinc-100 p-1 rounded-xl mb-7 w-fit">
+          <button onClick={() => setMode('signin')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signin' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign in</button>
+          <button onClick={() => setMode('signup')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signup' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign up</button>
         </div>
-        <h1 className="af-display text-xl font-bold text-zinc-900 mb-1">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
-        <p className="text-xs text-zinc-500 mb-6">{mode === 'signin' ? 'Pick up your roadmap where you left off.' : 'Start tracking progress across every track.'}</p>
-        <form className="space-y-3.5" onSubmit={(e) => e.preventDefault()}>
+
+        <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1.5">
+          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+        </h1>
+        <p className="text-sm text-zinc-500 mb-7">
+          {mode === 'signin' ? 'Sign in to pick up your roadmap where you left off.' : 'Free to join \u2014 start tracking progress across every track.'}
+        </p>
+
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           {mode === 'signup' && (
             <div>
-              <label className="text-xs font-semibold text-zinc-700 mb-1 block">Name</label>
-              <input type="text" placeholder="Your name" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
+              <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Full name</label>
+              <input type="text" placeholder="Jane Doe" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
             </div>
           )}
+
           <div>
-            <label className="text-xs font-semibold text-zinc-700 mb-1 block">Email</label>
+            <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Email address</label>
             <div className="relative">
               <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input type="email" placeholder="you@example.com" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
+              <input type="email" placeholder="you@example.com" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
             </div>
           </div>
+
           <div>
-            <label className="text-xs font-semibold text-zinc-700 mb-1 block">Password</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-zinc-700 block">Password</label>
+              {mode === 'signin' && (
+                <button type="button" className="text-[11px] font-semibold text-zinc-400 hover:text-zinc-700">Forgot password?</button>
+              )}
+            </div>
             <div className="relative">
               <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input type={showPw ? 'text' : 'password'} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">{showPw ? <EyeOff size={15} /> : <Eye size={15} />}</button>
+              <input type={showPw ? 'text' : 'password'} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
             </div>
           </div>
-          <button type="submit" className="w-full bg-zinc-900 text-white text-sm font-bold rounded-xl py-2.5 mt-2">{mode === 'signin' ? 'Sign in' : 'Create account'}</button>
+
+          {mode === 'signup' && (
+            <label className="flex items-start gap-2 text-xs text-zinc-500 pt-1 cursor-pointer">
+              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 accent-zinc-900" />
+              I agree to the Terms of Service and Privacy Policy
+            </label>
+          )}
+
+          <button
+            type="submit"
+            disabled={mode === 'signup' && !agreed}
+            className="w-full bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl py-2.5 mt-2 transition"
+          >
+            {mode === 'signin' ? 'Sign in' : 'Create account'}
+          </button>
         </form>
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px bg-zinc-100 flex-1" /><span className="text-[11px] text-zinc-400">or continue with</span><div className="h-px bg-zinc-100 flex-1" />
+        </div>
+        <button type="button" className="w-full border border-zinc-200 hover:bg-zinc-50 rounded-xl py-2.5 text-sm font-semibold text-zinc-700 transition flex items-center justify-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.4H12v4.5h6.5c-.3 1.5-1.1 2.7-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.7z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10.1 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.3.6 4.5 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1c.9-2.8 3.5-4.8 6.6-4.8z"/></svg>
+          Google
+        </button>
       </div>
-      <div className="bg-zinc-900 rounded-3xl p-7 text-white">
-        <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-4"><ShieldCheck size={18} strokeWidth={2.3} /></div>
-        <h2 className="af-display font-bold text-lg mb-1">Good account hygiene</h2>
-        <p className="text-xs text-zinc-400 mb-5">A few habits worth having before you sign up anywhere.</p>
-        <ul className="space-y-3">
-          {SECURITY_TIPS.map((tip, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-200"><Sparkles size={14} className="mt-0.5 shrink-0 text-emerald-400" />{tip}</li>
+
+      {/* brand panel */}
+      <div className="rounded-3xl p-7 md:p-8 text-white flex flex-col justify-between" style={{ background: 'linear-gradient(155deg, #18181B 0%, #27272A 55%, #312E81 100%)' }}>
+        <div>
+          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-6">
+            <span className="af-display font-bold text-sm">A</span>
+          </div>
+          <h2 className="af-display font-bold text-2xl leading-snug mb-3">
+            One account, every roadmap.
+          </h2>
+          <p className="text-sm text-zinc-300 leading-relaxed">
+            Track lessons completed, pick up exactly where you left off, and move between Cybersecurity, AI, Design, and Tools without losing progress.
+          </p>
+        </div>
+
+        <div className="space-y-4 mt-8 pt-6 border-t border-white/10">
+          {[
+            { Icon: Shield, label: '4 guided learning tracks' },
+            { Icon: Trophy, label: '24+ hands-on lessons' },
+            { Icon: Sparkles, label: 'Free to use, always' },
+          ].map(({ Icon, label }, i) => (
+            <div key={i} className="flex items-center gap-3 text-sm text-zinc-200">
+              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                <Icon size={13} strokeWidth={2.3} />
+              </div>
+              {label}
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

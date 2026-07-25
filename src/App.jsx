@@ -1,11 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
-  Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X, ShieldCheck,
+  Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
+  ShieldCheck, ExternalLink, Link2,
 } from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
+import { TOOLS } from './toolsData.js';
+import { LINKS } from './linksData.js';
 
 const ICONS = { Shield, Palette, Wrench, Brain };
+const SITE_NAME = 'Acarpo';
 
 /* ----------------------------- shared styles ----------------------------- */
 const GlobalStyle = () => (
@@ -24,6 +28,25 @@ const GlobalStyle = () => (
     .af-card { transition: all .18s ease; }
   `}</style>
 );
+
+/* ------------------------------ page titles ------------------------------- */
+const PAGE_TITLES = {
+  home: `${SITE_NAME} \u2014 Guided Roadmaps for Security, AI, Design & Tools`,
+  blog: `Blog \u2014 ${SITE_NAME}`,
+  roadmaps: `Roadmaps \u2014 ${SITE_NAME}`,
+  tools: `Cybersecurity Tools \u2014 ${SITE_NAME}`,
+  linker: `Links & Resources \u2014 ${SITE_NAME}`,
+  auth: `Sign In \u2014 ${SITE_NAME}`,
+  about: `About \u2014 ${SITE_NAME}`,
+  privacy: `Privacy Policy \u2014 ${SITE_NAME}`,
+  contact: `Contact \u2014 ${SITE_NAME}`,
+};
+
+function usePageTitle(page) {
+  useEffect(() => {
+    document.title = PAGE_TITLES[page] || SITE_NAME;
+  }, [page]);
+}
 
 /* -------------------------------- roadmap -------------------------------- */
 function pathFromPoints(points) {
@@ -159,15 +182,13 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
               </button>
             )}
             {selected.status === 'done' && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setReadingId(selected.id)}
-                  className="text-xs font-semibold px-3.5 py-2 rounded-lg border"
-                  style={{ borderColor: accent, color: accent }}
-                >
-                  Review lesson
-                </button>
-              </div>
+              <button
+                onClick={() => setReadingId(selected.id)}
+                className="text-xs font-semibold px-3.5 py-2 rounded-lg border"
+                style={{ borderColor: accent, color: accent }}
+              >
+                Review lesson
+              </button>
             )}
             {selected.status === 'locked' && (
               <p className="text-[11px] text-zinc-400">Complete the lesson above to unlock this.</p>
@@ -178,10 +199,7 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
 
       {reading && (
         <div className="max-w-sm mx-auto">
-          <button
-            onClick={() => setReadingId(null)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-3"
-          >
+          <button onClick={() => setReadingId(null)} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-3">
             <ArrowLeft size={13} /> Back to path
           </button>
           <div className="bg-white rounded-2xl border border-zinc-200 p-5">
@@ -193,11 +211,7 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
               ))}
             </div>
             {reading.status !== 'done' ? (
-              <button
-                onClick={() => handleComplete(reading.id)}
-                className="text-xs font-semibold text-white px-4 py-2.5 rounded-lg flex items-center gap-1.5"
-                style={{ background: accent }}
-              >
+              <button onClick={() => handleComplete(reading.id)} className="text-xs font-semibold text-white px-4 py-2.5 rounded-lg flex items-center gap-1.5" style={{ background: accent }}>
                 <Check size={13} strokeWidth={3} /> Mark lesson complete
               </button>
             ) : (
@@ -210,12 +224,14 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
   );
 }
 
-/* --------------------------------- pages ---------------------------------- */
+/* --------------------------------- header ---------------------------------- */
 function Header({ page, setPage, menuOpen, setMenuOpen }) {
   const tabs = [
     { id: 'home', label: 'Home' },
-    { id: 'blog', label: 'Blog' },
     { id: 'roadmaps', label: 'Roadmaps' },
+    { id: 'tools', label: 'Tools' },
+    { id: 'blog', label: 'Blog' },
+    { id: 'linker', label: 'Linker' },
     { id: 'auth', label: 'Sign In' },
   ];
   return (
@@ -225,25 +241,25 @@ function Header({ page, setPage, menuOpen, setMenuOpen }) {
           <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
             <span className="af-display text-white font-bold text-sm">A</span>
           </div>
-          <span className="af-display font-bold text-zinc-900 text-sm">Acarpo</span>
+          <span className="af-display font-bold text-zinc-900 text-sm">{SITE_NAME}</span>
         </button>
-        <nav className="hidden sm:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl">
+        <nav className="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setPage(t.id)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${page === t.id ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${page === t.id ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`}
             >
               {t.label}
             </button>
           ))}
         </nav>
-        <button className="sm:hidden text-zinc-700" onClick={() => setMenuOpen(!menuOpen)}>
+        <button className="md:hidden text-zinc-700" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
       {menuOpen && (
-        <nav className="sm:hidden flex flex-col gap-1 mt-3 pt-3 border-t border-zinc-100">
+        <nav className="md:hidden flex flex-col gap-1 mt-3 pt-3 border-t border-zinc-100">
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -259,6 +275,7 @@ function Header({ page, setPage, menuOpen, setMenuOpen }) {
   );
 }
 
+/* --------------------------------- home ---------------------------------- */
 function HomePage({ setPage, setActiveRoadmap, progress }) {
   return (
     <div className="max-w-5xl mx-auto px-5 py-10 space-y-12">
@@ -270,7 +287,7 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
           Guided roadmaps for security, AI, design, and tools.
         </h1>
         <p className="text-sm text-zinc-500 max-w-lg mb-5">
-          Bite-sized lessons laid out as a path you can actually see yourself moving through, plus a blog to go deeper on anything that catches your eye.
+          Bite-sized lessons laid out as a path you can see yourself moving through, a curated tools directory, and a blog to go deeper on anything that catches your eye.
         </p>
         <div className="flex gap-3">
           <button onClick={() => setPage('roadmaps')} className="px-4 py-2.5 bg-zinc-900 text-white text-xs font-bold rounded-xl flex items-center gap-1.5">
@@ -289,11 +306,7 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
             const doneCount = (progress[key] || []).length;
             const Icon = ICONS[r.iconName];
             return (
-              <button
-                key={key}
-                onClick={() => { setActiveRoadmap(key); setPage('roadmaps'); }}
-                className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4"
-              >
+              <button key={key} onClick={() => { setActiveRoadmap(key); setPage('roadmaps'); }} className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${r.accent}1A` }}>
                   <Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
                 </div>
@@ -308,22 +321,21 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="af-display text-lg font-bold text-zinc-900">Latest from the blog</h2>
-          <button onClick={() => setPage('blog')} className="text-xs font-semibold text-zinc-500 flex items-center gap-1">
-            View all <ArrowRight size={12} />
-          </button>
+          <button onClick={() => setPage('blog')} className="text-xs font-semibold text-zinc-500 flex items-center gap-1">View all <ArrowRight size={12} /></button>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          {BLOG_POSTS.slice(0, 3).map((p) => <BlogCard key={p.id} post={p} onOpen={() => { setPage('blog'); }} />)}
+          {BLOG_POSTS.slice(0, 3).map((p) => <BlogCard key={p.id} post={p} onOpen={() => setPage('blog')} />)}
         </div>
       </section>
     </div>
   );
 }
 
+/* --------------------------------- blog ---------------------------------- */
 function BlogCard({ post, onOpen }) {
   return (
     <article onClick={onOpen} className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer">
-      <img src={`https://picsum.photos/seed/${post.seed}/480/280`} alt="" className="w-full h-36 object-cover" />
+      <img src={`https://picsum.photos/seed/${post.seed}/480/280`} alt={post.title} className="w-full h-36 object-cover" />
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
@@ -343,19 +355,15 @@ function BlogCard({ post, onOpen }) {
 function BlogPostDetail({ post, onBack }) {
   return (
     <div className="max-w-2xl mx-auto px-5 py-10">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-5">
-        <ArrowLeft size={13} /> Back to blog
-      </button>
-      <img src={`https://picsum.photos/seed/${post.seed}/900/420`} alt="" className="w-full h-56 object-cover rounded-2xl mb-6" />
+      <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-5"><ArrowLeft size={13} /> Back to blog</button>
+      <img src={`https://picsum.photos/seed/${post.seed}/900/420`} alt={post.title} className="w-full h-56 object-cover rounded-2xl mb-6" />
       <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
       <h1 className="af-display text-2xl font-bold text-zinc-900 mt-1.5 mb-2">{post.title}</h1>
       <div className="flex items-center gap-3 text-xs text-zinc-400 mb-6">
         <span>{post.author}</span><span>\u00b7</span><span>{post.date}</span><span>\u00b7</span><span>{post.readTime}</span>
       </div>
       <div className="space-y-4">
-        {post.content.map((p, i) => (
-          <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>
-        ))}
+        {post.content.map((p, i) => <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>)}
       </div>
     </div>
   );
@@ -370,35 +378,20 @@ function BlogPage() {
     (cat === 'All' || p.cat === cat) &&
     (p.title.toLowerCase().includes(query.toLowerCase()) || p.excerpt.toLowerCase().includes(query.toLowerCase()))
   );
-
   if (openPost) return <BlogPostDetail post={openPost} onBack={() => setOpenPost(null)} />;
-
   return (
     <div className="max-w-5xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Blog</h1>
       <p className="text-sm text-zinc-500 mb-6">Deeper dives to go with each roadmap.</p>
-
       <div className="relative mb-4">
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search posts..."
-          className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
-        />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search posts..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
       </div>
       <div className="flex gap-2 mb-6 flex-wrap">
         {cats.map((c) => (
-          <button
-            key={c}
-            onClick={() => setCat(c)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${cat === c ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-500 border-zinc-200'}`}
-          >
-            {c}
-          </button>
+          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${cat === c ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-500 border-zinc-200'}`}>{c}</button>
         ))}
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((p) => <BlogCard key={p.id} post={p} onOpen={() => setOpenPost(p)} />)}
         {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No posts match that search.</p>}
@@ -407,6 +400,95 @@ function BlogPage() {
   );
 }
 
+/* --------------------------------- tools ---------------------------------- */
+function ToolsPage() {
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState('All');
+  const cats = ['All', ...new Set(TOOLS.map((t) => t.category))];
+  const filtered = TOOLS.filter((t) =>
+    (cat === 'All' || t.category === cat) &&
+    (t.name.toLowerCase().includes(query.toLowerCase()) || t.desc.toLowerCase().includes(query.toLowerCase()))
+  );
+  return (
+    <div className="max-w-5xl mx-auto px-5 py-10">
+      <div className="flex items-center gap-2.5 mb-1.5">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#4338CA1A' }}>
+          <Shield size={18} style={{ color: '#4338CA' }} strokeWidth={2.3} />
+        </div>
+        <h1 className="af-display text-2xl font-bold text-zinc-900">Cybersecurity Tools</h1>
+      </div>
+      <p className="text-sm text-zinc-500 mb-6">Industry-standard tools cybersecurity professionals use daily \u2014 for authorized testing, defense, and investigation on systems you own or have permission to work on.</p>
+      <div className="relative mb-4">
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tools..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
+      </div>
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {cats.map((c) => (
+          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${cat === c ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-500 border-zinc-200'}`}>{c}</button>
+        ))}
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((t) => (
+          <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" className="af-card bg-white border border-zinc-200 rounded-2xl p-4 block">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-indigo-600">{t.category}</span>
+              <ExternalLink size={13} className="text-zinc-300" />
+            </div>
+            <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1.5">{t.name}</h3>
+            <p className="text-xs text-zinc-500 leading-relaxed">{t.desc}</p>
+          </a>
+        ))}
+        {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No tools match that search.</p>}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------- linker ---------------------------------- */
+function LinkerPage() {
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState('All');
+  const cats = ['All', ...new Set(LINKS.map((l) => l.category))];
+  const filtered = LINKS.filter((l) =>
+    (cat === 'All' || l.category === cat) &&
+    (l.name.toLowerCase().includes(query.toLowerCase()) || l.desc.toLowerCase().includes(query.toLowerCase()))
+  );
+  return (
+    <div className="max-w-5xl mx-auto px-5 py-10">
+      <div className="flex items-center gap-2.5 mb-1.5">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-100">
+          <Link2 size={18} className="text-zinc-700" strokeWidth={2.3} />
+        </div>
+        <h1 className="af-display text-2xl font-bold text-zinc-900">Linker</h1>
+      </div>
+      <p className="text-sm text-zinc-500 mb-6">Links, websites, and software worth bookmarking. Every entry opens the real destination directly \u2014 no redirect in between.</p>
+      <div className="relative mb-4">
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search links..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
+      </div>
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {cats.map((c) => (
+          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${cat === c ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-500 border-zinc-200'}`}>{c}</button>
+        ))}
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((l) => (
+          <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="af-card bg-white border border-zinc-200 rounded-2xl p-4 block">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-400">{l.category}</span>
+              <ExternalLink size={13} className="text-zinc-300" />
+            </div>
+            <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1.5">{l.name}</h3>
+            <p className="text-xs text-zinc-500 leading-relaxed">{l.desc}</p>
+          </a>
+        ))}
+        {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No links match that search.</p>}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------- roadmaps page ---------------------------------- */
 function RoadmapsPage({ active, setActive, progress, onComplete }) {
   const track = ROADMAPS[active];
   const nodes = deriveNodes(track.nodes, progress[active] || []);
@@ -419,33 +501,21 @@ function RoadmapsPage({ active, setActive, progress, onComplete }) {
         {Object.entries(ROADMAPS).map(([key, r]) => {
           const TabIcon = ICONS[r.iconName];
           return (
-            <button
-              key={key}
-              onClick={() => setActive(key)}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
-              style={active === key
-                ? { background: r.accent, borderColor: r.accent, color: '#fff' }
-                : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}
-            >
+            <button key={key} onClick={() => setActive(key)} className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
+              style={active === key ? { background: r.accent, borderColor: r.accent, color: '#fff' } : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}>
               <TabIcon size={14} /> {r.title.split(' ')[0]}
             </button>
           );
         })}
       </div>
       <div className="bg-white border border-zinc-200 rounded-3xl p-6">
-        <RoadmapPath
-          title={track.title}
-          subtitle={track.subtitle}
-          accent={track.accent}
-          Icon={Icon}
-          nodes={nodes}
-          onComplete={(nodeId) => onComplete(active, nodeId)}
-        />
+        <RoadmapPath title={track.title} subtitle={track.subtitle} accent={track.accent} Icon={Icon} nodes={nodes} onComplete={(nodeId) => onComplete(active, nodeId)} />
       </div>
     </div>
   );
 }
 
+/* --------------------------------- auth ---------------------------------- */
 const SECURITY_TIPS = [
   'Use a password manager and unique passwords per site',
   'Turn on multi-factor authentication everywhere it\u2019s offered',
@@ -464,13 +534,8 @@ function AuthPage() {
           <button onClick={() => setMode('signin')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold ${mode === 'signin' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign in</button>
           <button onClick={() => setMode('signup')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold ${mode === 'signup' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign up</button>
         </div>
-        <h1 className="af-display text-xl font-bold text-zinc-900 mb-1">
-          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
-        </h1>
-        <p className="text-xs text-zinc-500 mb-6">
-          {mode === 'signin' ? 'Pick up your roadmap where you left off.' : 'Start tracking progress across every track.'}
-        </p>
-
+        <h1 className="af-display text-xl font-bold text-zinc-900 mb-1">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
+        <p className="text-xs text-zinc-500 mb-6">{mode === 'signin' ? 'Pick up your roadmap where you left off.' : 'Start tracking progress across every track.'}</p>
         <form className="space-y-3.5" onSubmit={(e) => e.preventDefault()}>
           {mode === 'signup' && (
             <div>
@@ -490,29 +555,19 @@ function AuthPage() {
             <div className="relative">
               <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input type={showPw ? 'text' : 'password'} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">{showPw ? <EyeOff size={15} /> : <Eye size={15} />}</button>
             </div>
           </div>
-          <button type="submit" className="w-full bg-zinc-900 text-white text-sm font-bold rounded-xl py-2.5 mt-2">
-            {mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
+          <button type="submit" className="w-full bg-zinc-900 text-white text-sm font-bold rounded-xl py-2.5 mt-2">{mode === 'signin' ? 'Sign in' : 'Create account'}</button>
         </form>
       </div>
-
       <div className="bg-zinc-900 rounded-3xl p-7 text-white">
-        <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-4">
-          <ShieldCheck size={18} strokeWidth={2.3} />
-        </div>
+        <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-4"><ShieldCheck size={18} strokeWidth={2.3} /></div>
         <h2 className="af-display font-bold text-lg mb-1">Good account hygiene</h2>
         <p className="text-xs text-zinc-400 mb-5">A few habits worth having before you sign up anywhere.</p>
         <ul className="space-y-3">
           {SECURITY_TIPS.map((tip, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-200">
-              <Sparkles size={14} className="mt-0.5 shrink-0 text-emerald-400" />
-              {tip}
-            </li>
+            <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-200"><Sparkles size={14} className="mt-0.5 shrink-0 text-emerald-400" />{tip}</li>
           ))}
         </ul>
       </div>
@@ -520,16 +575,54 @@ function AuthPage() {
   );
 }
 
+/* --------------------------------- legal / about pages ---------------------------------- */
+function SimplePage({ title, children }) {
+  return (
+    <div className="max-w-2xl mx-auto px-5 py-10">
+      <h1 className="af-display text-2xl font-bold text-zinc-900 mb-4">{title}</h1>
+      <div className="space-y-4 text-sm text-zinc-600 leading-relaxed">{children}</div>
+    </div>
+  );
+}
+
+function AboutPage() {
+  return (
+    <SimplePage title="About Acarpo">
+      <p>Acarpo is a small, independent learning site built by Philemon. It offers guided, self-paced roadmaps in cybersecurity, AI, graphic design, and productivity tools, alongside a blog that goes deeper on each topic and a directory of tools and links worth knowing about.</p>
+      <p>The goal is simple: make it obvious what to learn next, and give you a real, readable explanation instead of a wall of jargon.</p>
+    </SimplePage>
+  );
+}
+
+function PrivacyPage() {
+  return (
+    <SimplePage title="Privacy Policy">
+      <p>This site does not sell personal data. Sign-in details you provide are used only to save your roadmap progress.</p>
+      <p>If third-party services such as analytics or advertising are enabled on this site, they may use cookies to serve relevant content and measure performance, consistent with their own privacy policies.</p>
+      <p>Questions about this policy can be sent via the Contact page.</p>
+    </SimplePage>
+  );
+}
+
+function ContactPage() {
+  return (
+    <SimplePage title="Contact">
+      <p>For questions, corrections, or suggestions, reach out via the links in the footer, or open an issue on the project\u2019s GitHub repository.</p>
+    </SimplePage>
+  );
+}
+
 /* --------------------------------- footer --------------------------------- */
-function Footer() {
+function Footer({ setPage }) {
   return (
     <footer className="border-t border-zinc-200 bg-white px-5 py-6 mt-8">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
         <p>\u00A9 2026 Acarpo Web \u2014 built by Drenchack Tech Company</p>
         <div className="flex gap-4">
-          <a href="#twitter" className="hover:text-zinc-700">Twitter / X</a>
+          <button onClick={() => setPage('about')} className="hover:text-zinc-700">About</button>
+          <button onClick={() => setPage('privacy')} className="hover:text-zinc-700">Privacy</button>
+          <button onClick={() => setPage('contact')} className="hover:text-zinc-700">Contact</button>
           <a href="#github" className="hover:text-zinc-700">GitHub</a>
-          <a href="#discord" className="hover:text-zinc-700">Discord</a>
         </div>
       </div>
     </footer>
@@ -542,6 +635,8 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeRoadmap, setActiveRoadmap] = useState('cybersecurity');
   const [progress, setProgress] = useState({ cybersecurity: [], ai: [], design: [], tools: [] });
+
+  usePageTitle(page);
 
   const handleComplete = (trackKey, nodeId) => {
     setProgress((prev) => ({
@@ -556,11 +651,14 @@ export default function App() {
       <Header page={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       {page === 'home' && <HomePage setPage={setPage} setActiveRoadmap={setActiveRoadmap} progress={progress} />}
       {page === 'blog' && <BlogPage />}
-      {page === 'roadmaps' && (
-        <RoadmapsPage active={activeRoadmap} setActive={setActiveRoadmap} progress={progress} onComplete={handleComplete} />
-      )}
+      {page === 'tools' && <ToolsPage />}
+      {page === 'linker' && <LinkerPage />}
+      {page === 'roadmaps' && <RoadmapsPage active={activeRoadmap} setActive={setActiveRoadmap} progress={progress} onComplete={handleComplete} />}
       {page === 'auth' && <AuthPage />}
-      <Footer />
+      {page === 'about' && <AboutPage />}
+      {page === 'privacy' && <PrivacyPage />}
+      {page === 'contact' && <ContactPage />}
+      <Footer setPage={setPage} />
     </div>
   );
 }

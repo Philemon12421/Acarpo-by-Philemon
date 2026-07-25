@@ -72,10 +72,8 @@ function deriveNodes(nodes, doneIds) {
 }
 
 function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
-  const [selectedId, setSelectedId] = useState(
-    nodes.find((n) => n.status === 'current')?.id ?? nodes[0].id
-  );
-  const [readingId, setReadingId] = useState(null);
+  // openId: which node's lesson popup is currently open (null = none)
+  const [openId, setOpenId] = useState(null);
   const ROW_H = 128, TOP_PAD = 60, WIDTH = 400;
   const height = TOP_PAD + nodes.length * ROW_H + 30;
 
@@ -86,19 +84,15 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
   const pathD = pathFromPoints(points);
   const doneCount = nodes.filter((n) => n.status === 'done').length;
   const pct = Math.round((doneCount / nodes.length) * 100);
-  const selected = nodes.find((n) => n.id === selectedId) ?? nodes[0];
-  const reading = readingId != null ? nodes.find((n) => n.id === readingId) : null;
+  const open = openId != null ? nodes.find((n) => n.id === openId) : null;
 
   const handleComplete = (nodeId) => {
     onComplete(nodeId);
-    setReadingId(null);
-    const idx = nodes.findIndex((n) => n.id === nodeId);
-    const next = nodes[idx + 1];
-    if (next) setSelectedId(next.id);
+    setOpenId(null);
   };
 
   return (
-    <div className="af-body">
+    <div className="af-body" style={{ position: 'relative' }}>
       <div className="mb-5">
         <div className="flex items-center gap-2.5 mb-1.5">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${accent}1A` }}>
@@ -115,107 +109,86 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
         </div>
       </div>
 
-      {!reading && (
-        <div className="max-w-sm mx-auto" style={{ aspectRatio: `${WIDTH} / ${height}` }}>
-          <svg viewBox={`0 0 ${WIDTH} ${height}`} width="100%" height="100%">
-            <path d={pathD} fill="none" stroke="#E4E4E7" strokeWidth="5" strokeLinecap="round" />
-            <path
-              d={pathD} fill="none" stroke={accent} strokeWidth="5" strokeLinecap="round"
-              pathLength="1" className="af-draw"
-              style={{ strokeDasharray: `${doneCount / Math.max(nodes.length - 1, 1)} 1` }}
-            />
-            {points.map((p, i) => {
-              const node = nodes[i];
-              const isDone = node.status === 'done', isCurrent = node.status === 'current', isLocked = node.status === 'locked';
-              const r = isCurrent ? 25 : 22;
-              return (
-                <g key={node.id}>
-                  {isCurrent && <circle cx={p.x} cy={p.y} r={r} fill={accent} className="af-pulse" />}
-                  <foreignObject x={p.x - r} y={p.y - r} width={r * 2} height={r * 2}>
-                    <button
-                      onClick={() => !isLocked && setSelectedId(node.id)}
-                      disabled={isLocked}
-                      aria-label={node.title}
-                      className="af-node"
-                      style={{
-                        width: '100%', height: '100%', borderRadius: '9999px', display: 'flex',
-                        alignItems: 'center', justifyContent: 'center',
-                        border: `2.5px solid ${isLocked ? '#D4D4D8' : accent}`,
-                        background: isDone || isCurrent ? accent : '#FFFFFF',
-                        cursor: isLocked ? 'not-allowed' : 'pointer',
-                        boxShadow: selectedId === node.id && !isLocked ? `0 0 0 4px ${accent}33` : 'none',
-                      }}
-                    >
-                      {isLocked && <Lock size={15} color="#A1A1AA" strokeWidth={2.3} />}
-                      {isDone && !node.capstone && <Check size={17} color="#FFFFFF" strokeWidth={3} />}
-                      {isCurrent && <Play size={14} color="#FFFFFF" strokeWidth={2.5} fill="#FFFFFF" />}
-                      {node.capstone && !isLocked && <Trophy size={16} color="#FFFFFF" strokeWidth={2.3} />}
-                    </button>
-                  </foreignObject>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-      )}
+      <div className="max-w-sm mx-auto" style={{ aspectRatio: `${WIDTH} / ${height}` }}>
+        <svg viewBox={`0 0 ${WIDTH} ${height}`} width="100%" height="100%">
+          <path d={pathD} fill="none" stroke="#E4E4E7" strokeWidth="5" strokeLinecap="round" />
+          <path
+            d={pathD} fill="none" stroke={accent} strokeWidth="5" strokeLinecap="round"
+            pathLength="1" className="af-draw"
+            style={{ strokeDasharray: `${doneCount / Math.max(nodes.length - 1, 1)} 1` }}
+          />
+          {points.map((p, i) => {
+            const node = nodes[i];
+            const isDone = node.status === 'done', isCurrent = node.status === 'current', isLocked = node.status === 'locked';
+            const r = isCurrent ? 25 : 22;
+            const iconSize = 16;
+            let IconEl = null;
+            if (isLocked) IconEl = <Lock size={iconSize} color="#A1A1AA" strokeWidth={2.3} x={p.x - iconSize / 2} y={p.y - iconSize / 2} />;
+            else if (node.capstone) IconEl = <Trophy size={iconSize} color="#FFFFFF" strokeWidth={2.3} x={p.x - iconSize / 2} y={p.y - iconSize / 2} />;
+            else if (isDone) IconEl = <Check size={iconSize + 1} color="#FFFFFF" strokeWidth={3} x={p.x - (iconSize + 1) / 2} y={p.y - (iconSize + 1) / 2} />;
+            else if (isCurrent) IconEl = <Play size={iconSize - 2} color="#FFFFFF" strokeWidth={2.5} fill="#FFFFFF" x={p.x - (iconSize - 2) / 2} y={p.y - (iconSize - 2) / 2} />;
 
-      {!reading && selected && (
-        <div className="max-w-sm mx-auto mt-1">
-          <div className="bg-white rounded-2xl border border-zinc-200 p-4">
-            <div className="flex items-start justify-between gap-3 mb-1">
-              <h3 className="af-display font-semibold text-zinc-900 text-sm leading-snug">{selected.title}</h3>
-              <span
-                className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: selected.status === 'locked' ? '#F4F4F5' : `${accent}1A`, color: selected.status === 'locked' ? '#A1A1AA' : accent }}
+            return (
+              <g
+                key={node.id}
+                onClick={() => !isLocked && setOpenId(node.id)}
+                role="button"
+                tabIndex={isLocked ? -1 : 0}
+                aria-label={node.title}
+                aria-disabled={isLocked}
+                onKeyDown={(e) => { if (!isLocked && (e.key === 'Enter' || e.key === ' ')) setOpenId(node.id); }}
+                className="af-node"
+                style={{ cursor: isLocked ? 'not-allowed' : 'pointer', outline: 'none' }}
               >
-                {selected.status === 'done' ? 'Completed' : selected.status === 'current' ? 'Not started' : 'Locked'}
-              </span>
+                {isCurrent && <circle cx={p.x} cy={p.y} r={r} fill={accent} className="af-pulse" pointerEvents="none" />}
+                <circle
+                  cx={p.x} cy={p.y} r={r}
+                  fill={isDone || isCurrent ? accent : '#FFFFFF'}
+                  stroke={isLocked ? '#D4D4D8' : accent}
+                  strokeWidth="2.5"
+                />
+                {IconEl}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      <p className="text-center text-[11px] text-zinc-400 mt-1">Tap any unlocked node to open its lesson.</p>
+
+      {/* --- lesson popup --- */}
+      {open && (
+        <div
+          onClick={() => setOpenId(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(24,24,27,0.45)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            style={{ maxHeight: '85vh', overflowY: 'auto' }}
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: accent }}>
+                  {open.status === 'done' ? 'Completed lesson' : 'Lesson'}
+                </span>
+                <h3 className="af-display font-bold text-zinc-900 text-lg mt-0.5">{open.title}</h3>
+              </div>
+              <button onClick={() => setOpenId(null)} aria-label="Close" className="shrink-0 w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500">
+                <X size={14} />
+              </button>
             </div>
-            <p className="text-xs text-zinc-500 leading-relaxed mb-3">{selected.desc}</p>
-            {selected.status === 'current' && (
-              <button
-                onClick={() => setReadingId(selected.id)}
-                className="text-xs font-semibold text-white px-3.5 py-2 rounded-lg flex items-center gap-1.5"
-                style={{ background: accent }}
-              >
-                <Play size={12} fill="#fff" /> Start lesson
-              </button>
-            )}
-            {selected.status === 'done' && (
-              <button
-                onClick={() => setReadingId(selected.id)}
-                className="text-xs font-semibold px-3.5 py-2 rounded-lg border"
-                style={{ borderColor: accent, color: accent }}
-              >
-                Review lesson
-              </button>
-            )}
-            {selected.status === 'locked' && (
-              <p className="text-[11px] text-zinc-400">Complete the lesson above to unlock this.</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {reading && (
-        <div className="max-w-sm mx-auto">
-          <button onClick={() => setReadingId(null)} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-3">
-            <ArrowLeft size={13} /> Back to path
-          </button>
-          <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-            <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: accent }}>Lesson</span>
-            <h3 className="af-display font-bold text-zinc-900 text-lg mt-1 mb-3">{reading.title}</h3>
             <div className="space-y-3 mb-5">
-              {(reading.content || [reading.desc]).map((p, i) => (
+              {(open.content || [open.desc]).map((p, i) => (
                 <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>
               ))}
             </div>
-            {reading.status !== 'done' ? (
-              <button onClick={() => handleComplete(reading.id)} className="text-xs font-semibold text-white px-4 py-2.5 rounded-lg flex items-center gap-1.5" style={{ background: accent }}>
+            {open.status !== 'done' ? (
+              <button onClick={() => handleComplete(open.id)} className="text-xs font-semibold text-white px-4 py-2.5 rounded-lg flex items-center gap-1.5" style={{ background: accent }}>
                 <Check size={13} strokeWidth={3} /> Mark lesson complete
               </button>
             ) : (
-              <p className="text-[11px] font-semibold" style={{ color: accent }}>\u2713 Already completed</p>
+              <p className="text-[11px] font-semibold" style={{ color: accent }}>\u2713 Already completed \u2014 nice work.</p>
             )}
           </div>
         </div>

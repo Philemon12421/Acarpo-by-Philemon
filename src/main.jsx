@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
-import './index.css'
+import './index.css' 
 
 // Note: BrowserRouter now lives inside App.jsx itself (wrapping AppShell),
 // so this file doesn't need to import react-router-dom directly.

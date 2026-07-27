@@ -3,7 +3,7 @@ import {
   BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams, Navigate,
 } from 'react-router-dom';
 import {
-  Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
+  Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff, 
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
   ExternalLink, Link2,
 } from 'lucide-react';

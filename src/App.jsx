@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
+  BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams, Navigate,
+} from 'react-router-dom';
+import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
   ExternalLink, Link2,
@@ -30,22 +33,8 @@ const GlobalStyle = () => (
 );
 
 /* ------------------------------ page titles ------------------------------- */
-const PAGE_TITLES = {
-  home: `${SITE_NAME} \u2014 Guided Roadmaps for Security, AI, Design & Tools`,
-  blog: `Blog \u2014 ${SITE_NAME}`,
-  roadmaps: `Roadmaps \u2014 ${SITE_NAME}`,
-  tools: `Cybersecurity Tools \u2014 ${SITE_NAME}`,
-  linker: `Links & Resources \u2014 ${SITE_NAME}`,
-  auth: `Sign In \u2014 ${SITE_NAME}`,
-  about: `About \u2014 ${SITE_NAME}`,
-  privacy: `Privacy Policy \u2014 ${SITE_NAME}`,
-  contact: `Contact \u2014 ${SITE_NAME}`,
-};
-
-function usePageTitle(page) {
-  useEffect(() => {
-    document.title = PAGE_TITLES[page] || SITE_NAME;
-  }, [page]);
+function usePageTitle(title) {
+  useEffect(() => { document.title = title ? `${title} \u2014 ${SITE_NAME}` : SITE_NAME; }, [title]);
 }
 
 /* -------------------------------- roadmap -------------------------------- */
@@ -72,7 +61,6 @@ function deriveNodes(nodes, doneIds) {
 }
 
 function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
-  // openId: which node's lesson popup is currently open (null = none)
   const [openId, setOpenId] = useState(null);
   const ROW_H = 128, TOP_PAD = 60, WIDTH = 400;
   const height = TOP_PAD + nodes.length * ROW_H + 30;
@@ -86,10 +74,7 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
   const pct = Math.round((doneCount / nodes.length) * 100);
   const open = openId != null ? nodes.find((n) => n.id === openId) : null;
 
-  const handleComplete = (nodeId) => {
-    onComplete(nodeId);
-    setOpenId(null);
-  };
+  const handleComplete = (nodeId) => { onComplete(nodeId); setOpenId(null); };
 
   return (
     <div className="af-body" style={{ position: 'relative' }}>
@@ -141,12 +126,7 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
                 style={{ cursor: isLocked ? 'not-allowed' : 'pointer', outline: 'none' }}
               >
                 {isCurrent && <circle cx={p.x} cy={p.y} r={r} fill={accent} className="af-pulse" pointerEvents="none" />}
-                <circle
-                  cx={p.x} cy={p.y} r={r}
-                  fill={isDone || isCurrent ? accent : '#FFFFFF'}
-                  stroke={isLocked ? '#D4D4D8' : accent}
-                  strokeWidth="2.5"
-                />
+                <circle cx={p.x} cy={p.y} r={r} fill={isDone || isCurrent ? accent : '#FFFFFF'} stroke={isLocked ? '#D4D4D8' : accent} strokeWidth="2.5" />
                 {IconEl}
               </g>
             );
@@ -156,32 +136,18 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
 
       <p className="text-center text-[11px] text-zinc-400 mt-1">Tap any unlocked node to open its lesson.</p>
 
-      {/* --- lesson popup --- */}
       {open && (
-        <div
-          onClick={() => setOpenId(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(24,24,27,0.45)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
-            style={{ maxHeight: '85vh', overflowY: 'auto' }}
-          >
+        <div onClick={() => setOpenId(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(24,24,27,0.45)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl p-5 w-full max-w-sm" style={{ maxHeight: '85vh', overflowY: 'auto' }}>
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: accent }}>
-                  {open.status === 'done' ? 'Completed lesson' : 'Lesson'}
-                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: accent }}>{open.status === 'done' ? 'Completed lesson' : 'Lesson'}</span>
                 <h3 className="af-display font-bold text-zinc-900 text-lg mt-0.5">{open.title}</h3>
               </div>
-              <button onClick={() => setOpenId(null)} aria-label="Close" className="shrink-0 w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500">
-                <X size={14} />
-              </button>
+              <button onClick={() => setOpenId(null)} aria-label="Close" className="shrink-0 w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500"><X size={14} /></button>
             </div>
             <div className="space-y-3 mb-5">
-              {(open.content || [open.desc]).map((p, i) => (
-                <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>
-              ))}
+              {(open.content || [open.desc]).map((p, i) => <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>)}
             </div>
             {open.status !== 'done' ? (
               <button onClick={() => handleComplete(open.id)} className="text-xs font-semibold text-white px-4 py-2.5 rounded-lg flex items-center gap-1.5" style={{ background: accent }}>
@@ -198,33 +164,32 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
 }
 
 /* --------------------------------- header ---------------------------------- */
-function Header({ page, setPage, menuOpen, setMenuOpen }) {
+function Header({ menuOpen, setMenuOpen }) {
   const tabs = [
-    { id: 'home', label: 'Home' },
-    { id: 'roadmaps', label: 'Roadmaps' },
-    { id: 'tools', label: 'Tools' },
-    { id: 'blog', label: 'Blog' },
-    { id: 'linker', label: 'Linker' },
-    { id: 'auth', label: 'Sign In' },
+    { to: '/', label: 'Home', end: true },
+    { to: '/roadmaps', label: 'Roadmaps' },
+    { to: '/tools', label: 'Tools' },
+    { to: '/blog', label: 'Blog' },
+    { to: '/linker', label: 'Linker' },
+    { to: '/auth', label: 'Sign In' },
   ];
+  const linkClass = ({ isActive }) =>
+    `px-3 py-1.5 rounded-lg text-xs font-semibold transition ${isActive ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`;
+  const mobileLinkClass = ({ isActive }) =>
+    `text-left px-3 py-2 rounded-lg text-sm font-semibold ${isActive ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500'}`;
+
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-zinc-200 px-5 py-3.5">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
-        <button onClick={() => setPage('home')} className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
             <span className="af-display text-white font-bold text-sm">A</span>
           </div>
           <span className="af-display font-bold text-zinc-900 text-sm">{SITE_NAME}</span>
-        </button>
+        </Link>
         <nav className="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl">
           {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setPage(t.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${page === t.id ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`}
-            >
-              {t.label}
-            </button>
+            <NavLink key={t.to} to={t.to} end={t.end} className={linkClass}>{t.label}</NavLink>
           ))}
         </nav>
         <button className="md:hidden text-zinc-700" onClick={() => setMenuOpen(!menuOpen)}>
@@ -234,13 +199,7 @@ function Header({ page, setPage, menuOpen, setMenuOpen }) {
       {menuOpen && (
         <nav className="md:hidden flex flex-col gap-1 mt-3 pt-3 border-t border-zinc-100">
           {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => { setPage(t.id); setMenuOpen(false); }}
-              className={`text-left px-3 py-2 rounded-lg text-sm font-semibold ${page === t.id ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500'}`}
-            >
-              {t.label}
-            </button>
+            <NavLink key={t.to} to={t.to} end={t.end} className={mobileLinkClass} onClick={() => setMenuOpen(false)}>{t.label}</NavLink>
           ))}
         </nav>
       )}
@@ -249,7 +208,8 @@ function Header({ page, setPage, menuOpen, setMenuOpen }) {
 }
 
 /* --------------------------------- home ---------------------------------- */
-function HomePage({ setPage, setActiveRoadmap, progress }) {
+function HomePage({ progress }) {
+  usePageTitle(null);
   return (
     <div className="max-w-5xl mx-auto px-5 py-10 space-y-12">
       <section className="bg-zinc-50 border border-zinc-200 rounded-3xl p-8 md:p-10">
@@ -263,12 +223,12 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
           Bite-sized lessons laid out as a path you can see yourself moving through, a curated tools directory, and a blog to go deeper on anything that catches your eye.
         </p>
         <div className="flex gap-3">
-          <button onClick={() => setPage('roadmaps')} className="px-4 py-2.5 bg-zinc-900 text-white text-xs font-bold rounded-xl flex items-center gap-1.5">
+          <Link to="/roadmaps" className="px-4 py-2.5 bg-zinc-900 text-white text-xs font-bold rounded-xl flex items-center gap-1.5">
             Start a roadmap <ArrowRight size={14} />
-          </button>
-          <button onClick={() => setPage('blog')} className="px-4 py-2.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-bold rounded-xl">
+          </Link>
+          <Link to="/blog" className="px-4 py-2.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-bold rounded-xl">
             Browse the blog
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -279,13 +239,13 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
             const doneCount = (progress[key] || []).length;
             const Icon = ICONS[r.iconName];
             return (
-              <button key={key} onClick={() => { setActiveRoadmap(key); setPage('roadmaps'); }} className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4">
+              <Link key={key} to={`/roadmaps/${key}`} className="af-card text-left bg-white border border-zinc-200 rounded-2xl p-4 block">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${r.accent}1A` }}>
                   <Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
                 </div>
                 <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1">{r.title}</h3>
                 <p className="text-xs text-zinc-500">{doneCount}/{r.nodes.length} lessons \u00b7 {doneCount === 0 ? 'not started' : 'in progress'}</p>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -294,10 +254,10 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="af-display text-lg font-bold text-zinc-900">Latest from the blog</h2>
-          <button onClick={() => setPage('blog')} className="text-xs font-semibold text-zinc-500 flex items-center gap-1">View all <ArrowRight size={12} /></button>
+          <Link to="/blog" className="text-xs font-semibold text-zinc-500 flex items-center gap-1">View all <ArrowRight size={12} /></Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          {BLOG_POSTS.slice(0, 3).map((p) => <BlogCard key={p.id} post={p} onOpen={() => setPage('blog')} />)}
+          {BLOG_POSTS.slice(0, 3).map((p) => <BlogCard key={p.id} post={p} />)}
         </div>
       </section>
     </div>
@@ -305,9 +265,9 @@ function HomePage({ setPage, setActiveRoadmap, progress }) {
 }
 
 /* --------------------------------- blog ---------------------------------- */
-function BlogCard({ post, onOpen }) {
+function BlogCard({ post }) {
   return (
-    <article onClick={onOpen} className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer">
+    <Link to={`/blog/${post.id}`} className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden block">
       <img src={`https://picsum.photos/seed/${post.seed}/480/280`} alt={post.title} className="w-full h-36 object-cover" />
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
@@ -321,14 +281,18 @@ function BlogCard({ post, onOpen }) {
           <span className="font-semibold" style={{ color: post.accent }}>Read more \u2192</span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
-function BlogPostDetail({ post, onBack }) {
+function BlogPostPage() {
+  const { id } = useParams();
+  const post = BLOG_POSTS.find((p) => String(p.id) === id);
+  usePageTitle(post ? post.title : 'Blog post not found');
+  if (!post) return <Navigate to="/blog" replace />;
   return (
     <div className="max-w-2xl mx-auto px-5 py-10">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-5"><ArrowLeft size={13} /> Back to blog</button>
+      <Link to="/blog" className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-5 w-fit"><ArrowLeft size={13} /> Back to blog</Link>
       <img src={`https://picsum.photos/seed/${post.seed}/900/420`} alt={post.title} className="w-full h-56 object-cover rounded-2xl mb-6" />
       <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
       <h1 className="af-display text-2xl font-bold text-zinc-900 mt-1.5 mb-2">{post.title}</h1>
@@ -343,15 +307,14 @@ function BlogPostDetail({ post, onBack }) {
 }
 
 function BlogPage() {
+  usePageTitle('Blog');
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('All');
-  const [openPost, setOpenPost] = useState(null);
   const cats = ['All', ...new Set(BLOG_POSTS.map((p) => p.cat))];
   const filtered = BLOG_POSTS.filter((p) =>
     (cat === 'All' || p.cat === cat) &&
     (p.title.toLowerCase().includes(query.toLowerCase()) || p.excerpt.toLowerCase().includes(query.toLowerCase()))
   );
-  if (openPost) return <BlogPostDetail post={openPost} onBack={() => setOpenPost(null)} />;
   return (
     <div className="max-w-5xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Blog</h1>
@@ -366,7 +329,7 @@ function BlogPage() {
         ))}
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((p) => <BlogCard key={p.id} post={p} onOpen={() => setOpenPost(p)} />)}
+        {filtered.map((p) => <BlogCard key={p.id} post={p} />)}
         {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No posts match that search.</p>}
       </div>
     </div>
@@ -375,6 +338,7 @@ function BlogPage() {
 
 /* --------------------------------- tools ---------------------------------- */
 function ToolsPage() {
+  usePageTitle('Cybersecurity Tools');
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('All');
   const cats = ['All', ...new Set(TOOLS.map((t) => t.category))];
@@ -419,6 +383,7 @@ function ToolsPage() {
 
 /* --------------------------------- linker ---------------------------------- */
 function LinkerPage() {
+  usePageTitle('Linker');
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('All');
   const cats = ['All', ...new Set(LINKS.map((l) => l.category))];
@@ -462,9 +427,13 @@ function LinkerPage() {
 }
 
 /* --------------------------------- roadmaps page ---------------------------------- */
-function RoadmapsPage({ active, setActive, progress, onComplete }) {
-  const track = ROADMAPS[active];
-  const nodes = deriveNodes(track.nodes, progress[active] || []);
+function RoadmapsPage({ progress, onComplete }) {
+  const { track: trackKey } = useParams();
+  const navigate = useNavigate();
+  const track = ROADMAPS[trackKey];
+  usePageTitle(track ? track.title : 'Roadmaps');
+  if (!track) return <Navigate to="/roadmaps/cybersecurity" replace />;
+  const nodes = deriveNodes(track.nodes, progress[trackKey] || []);
   const Icon = ICONS[track.iconName];
   return (
     <div className="max-w-3xl mx-auto px-5 py-10">
@@ -473,16 +442,17 @@ function RoadmapsPage({ active, setActive, progress, onComplete }) {
       <div className="flex gap-2 mb-8 flex-wrap">
         {Object.entries(ROADMAPS).map(([key, r]) => {
           const TabIcon = ICONS[r.iconName];
+          const isActive = key === trackKey;
           return (
-            <button key={key} onClick={() => setActive(key)} className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
-              style={active === key ? { background: r.accent, borderColor: r.accent, color: '#fff' } : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}>
+            <button key={key} onClick={() => navigate(`/roadmaps/${key}`)} className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
+              style={isActive ? { background: r.accent, borderColor: r.accent, color: '#fff' } : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}>
               <TabIcon size={14} /> {r.title.split(' ')[0]}
             </button>
           );
         })}
       </div>
       <div className="bg-white border border-zinc-200 rounded-3xl p-6">
-        <RoadmapPath title={track.title} subtitle={track.subtitle} accent={track.accent} Icon={Icon} nodes={nodes} onComplete={(nodeId) => onComplete(active, nodeId)} />
+        <RoadmapPath title={track.title} subtitle={track.subtitle} accent={track.accent} Icon={Icon} nodes={nodes} onComplete={(nodeId) => onComplete(trackKey, nodeId)} />
       </div>
     </div>
   );
@@ -490,26 +460,20 @@ function RoadmapsPage({ active, setActive, progress, onComplete }) {
 
 /* --------------------------------- auth ---------------------------------- */
 function AuthPage() {
+  usePageTitle('Sign In');
   const [mode, setMode] = useState('signin');
   const [showPw, setShowPw] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
   return (
     <div className="max-w-4xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-6 items-stretch">
-      {/* form */}
       <div className="bg-white border border-zinc-200 rounded-3xl p-7 md:p-8">
         <div className="flex gap-1 bg-zinc-100 p-1 rounded-xl mb-7 w-fit">
           <button onClick={() => setMode('signin')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signin' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign in</button>
           <button onClick={() => setMode('signup')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signup' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign up</button>
         </div>
-
-        <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1.5">
-          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
-        </h1>
-        <p className="text-sm text-zinc-500 mb-7">
-          {mode === 'signin' ? 'Sign in to pick up your roadmap where you left off.' : 'Free to join \u2014 start tracking progress across every track.'}
-        </p>
-
+        <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1.5">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
+        <p className="text-sm text-zinc-500 mb-7">{mode === 'signin' ? 'Sign in to pick up your roadmap where you left off.' : 'Free to join \u2014 start tracking progress across every track.'}</p>
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           {mode === 'signup' && (
             <div>
@@ -517,7 +481,6 @@ function AuthPage() {
               <input type="text" placeholder="Jane Doe" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
             </div>
           )}
-
           <div>
             <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Email address</label>
             <div className="relative">
@@ -525,39 +488,27 @@ function AuthPage() {
               <input type="email" placeholder="you@example.com" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
             </div>
           </div>
-
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-zinc-700 block">Password</label>
-              {mode === 'signin' && (
-                <button type="button" className="text-[11px] font-semibold text-zinc-400 hover:text-zinc-700">Forgot password?</button>
-              )}
+              {mode === 'signin' && <button type="button" className="text-[11px] font-semibold text-zinc-400 hover:text-zinc-700">Forgot password?</button>}
             </div>
             <div className="relative">
               <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input type={showPw ? 'text' : 'password'} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">{showPw ? <EyeOff size={15} /> : <Eye size={15} />}</button>
             </div>
           </div>
-
           {mode === 'signup' && (
             <label className="flex items-start gap-2 text-xs text-zinc-500 pt-1 cursor-pointer">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 accent-zinc-900" />
               I agree to the Terms of Service and Privacy Policy
             </label>
           )}
-
-          <button
-            type="submit"
-            disabled={mode === 'signup' && !agreed}
-            className="w-full bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl py-2.5 mt-2 transition"
-          >
+          <button type="submit" disabled={mode === 'signup' && !agreed} className="w-full bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl py-2.5 mt-2 transition">
             {mode === 'signin' ? 'Sign in' : 'Create account'}
           </button>
         </form>
-
         <div className="flex items-center gap-3 my-6">
           <div className="h-px bg-zinc-100 flex-1" /><span className="text-[11px] text-zinc-400">or continue with</span><div className="h-px bg-zinc-100 flex-1" />
         </div>
@@ -566,21 +517,12 @@ function AuthPage() {
           Google
         </button>
       </div>
-
-      {/* brand panel */}
       <div className="rounded-3xl p-7 md:p-8 text-white flex flex-col justify-between" style={{ background: 'linear-gradient(155deg, #18181B 0%, #27272A 55%, #312E81 100%)' }}>
         <div>
-          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-6">
-            <span className="af-display font-bold text-sm">A</span>
-          </div>
-          <h2 className="af-display font-bold text-2xl leading-snug mb-3">
-            One account, every roadmap.
-          </h2>
-          <p className="text-sm text-zinc-300 leading-relaxed">
-            Track lessons completed, pick up exactly where you left off, and move between Cybersecurity, AI, Design, and Tools without losing progress.
-          </p>
+          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-6"><span className="af-display font-bold text-sm">A</span></div>
+          <h2 className="af-display font-bold text-2xl leading-snug mb-3">One account, every roadmap.</h2>
+          <p className="text-sm text-zinc-300 leading-relaxed">Track lessons completed, pick up exactly where you left off, and move between Cybersecurity, AI, Design, and Tools without losing progress.</p>
         </div>
-
         <div className="space-y-4 mt-8 pt-6 border-t border-white/10">
           {[
             { Icon: Shield, label: '4 guided learning tracks' },
@@ -588,9 +530,7 @@ function AuthPage() {
             { Icon: Sparkles, label: 'Free to use, always' },
           ].map(({ Icon, label }, i) => (
             <div key={i} className="flex items-center gap-3 text-sm text-zinc-200">
-              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                <Icon size={13} strokeWidth={2.3} />
-              </div>
+              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><Icon size={13} strokeWidth={2.3} /></div>
               {label}
             </div>
           ))}
@@ -602,6 +542,7 @@ function AuthPage() {
 
 /* --------------------------------- legal / about pages ---------------------------------- */
 function SimplePage({ title, children }) {
+  usePageTitle(title);
   return (
     <div className="max-w-2xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-4">{title}</h1>
@@ -637,17 +578,28 @@ function ContactPage() {
   );
 }
 
+function NotFoundPage() {
+  usePageTitle('Page not found');
+  return (
+    <div className="max-w-2xl mx-auto px-5 py-16 text-center">
+      <h1 className="af-display text-2xl font-bold text-zinc-900 mb-2">Page not found</h1>
+      <p className="text-sm text-zinc-500 mb-5">That page doesn\u2019t exist \u2014 it may have moved.</p>
+      <Link to="/" className="text-sm font-semibold text-zinc-900 underline">Back to home</Link>
+    </div>
+  );
+}
+
 /* --------------------------------- footer --------------------------------- */
-function Footer({ setPage }) {
+function Footer() {
   return (
     <footer className="border-t border-zinc-200 bg-white px-5 py-6 mt-8">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
         <p>\u00A9 2026 Acarpo Web \u2014 built by Drenchack Tech Company</p>
         <div className="flex gap-4">
-          <button onClick={() => setPage('about')} className="hover:text-zinc-700">About</button>
-          <button onClick={() => setPage('privacy')} className="hover:text-zinc-700">Privacy</button>
-          <button onClick={() => setPage('contact')} className="hover:text-zinc-700">Contact</button>
-          <a href="#github" className="hover:text-zinc-700">GitHub</a>
+          <Link to="/about" className="hover:text-zinc-700">About</Link>
+          <Link to="/privacy" className="hover:text-zinc-700">Privacy</Link>
+          <Link to="/contact" className="hover:text-zinc-700">Contact</Link>
+          <a href="https://github.com/Philemon12421/Acarpo-by-Philemon" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">GitHub</a>
         </div>
       </div>
     </footer>
@@ -655,13 +607,9 @@ function Footer({ setPage }) {
 }
 
 /* ---------------------------------- app ------------------------------------ */
-export default function App() {
-  const [page, setPage] = useState('home');
+function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeRoadmap, setActiveRoadmap] = useState('cybersecurity');
   const [progress, setProgress] = useState({ cybersecurity: [], ai: [], design: [], tools: [] });
-
-  usePageTitle(page);
 
   const handleComplete = (trackKey, nodeId) => {
     setProgress((prev) => ({
@@ -673,17 +621,30 @@ export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 af-body">
       <GlobalStyle />
-      <Header page={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-      {page === 'home' && <HomePage setPage={setPage} setActiveRoadmap={setActiveRoadmap} progress={progress} />}
-      {page === 'blog' && <BlogPage />}
-      {page === 'tools' && <ToolsPage />}
-      {page === 'linker' && <LinkerPage />}
-      {page === 'roadmaps' && <RoadmapsPage active={activeRoadmap} setActive={setActiveRoadmap} progress={progress} onComplete={handleComplete} />}
-      {page === 'auth' && <AuthPage />}
-      {page === 'about' && <AboutPage />}
-      {page === 'privacy' && <PrivacyPage />}
-      {page === 'contact' && <ContactPage />}
-      <Footer setPage={setPage} />
+      <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <Routes>
+        <Route path="/" element={<HomePage progress={progress} />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:id" element={<BlogPostPage />} />
+        <Route path="/tools" element={<ToolsPage />} />
+        <Route path="/linker" element={<LinkerPage />} />
+        <Route path="/roadmaps" element={<Navigate to="/roadmaps/cybersecurity" replace />} />
+        <Route path="/roadmaps/:track" element={<RoadmapsPage progress={progress} onComplete={handleComplete} />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Footer />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }

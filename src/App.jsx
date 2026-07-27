@@ -6,7 +6,7 @@ import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff, 
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
   ExternalLink, Link2,
-} from 'lucide-react';
+} from 'lucide-react'; 
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
 import { LINKS } from './linksData.js';

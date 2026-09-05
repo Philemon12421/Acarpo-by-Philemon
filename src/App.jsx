@@ -35,7 +35,7 @@ const GlobalStyle = () => (
 
 /* ------------------------------ page titles ------------------------------- */
 function usePageTitle(title) {
-  useEffect(() => { document.title = title ? `${title} \u2014 ${SITE_NAME}` : SITE_NAME; }, [title]);
+  useEffect(() => { document.title = title ? `${title} — ${SITE_NAME}` : SITE_NAME; }, [title]);
 }
 
 /* -------------------------------- roadmap -------------------------------- */
@@ -155,7 +155,7 @@ function RoadmapPath({ title, subtitle, accent, Icon, nodes, onComplete }) {
                 <Check size={13} strokeWidth={3} /> Mark lesson complete
               </button>
             ) : (
-              <p className="text-[11px] font-semibold" style={{ color: accent }}>\u2713 Already completed \u2014 nice work.</p>
+              <p className="text-[11px] font-semibold" style={{ color: accent }}>✓ Already completed — nice work.</p>
             )}
           </div>
         </div>
@@ -246,7 +246,7 @@ function HomePage({ progress }) {
                   <Icon size={18} style={{ color: r.accent }} strokeWidth={2.3} />
                 </div>
                 <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1">{r.title}</h3>
-                <p className="text-xs text-zinc-500">{doneCount}/{r.nodes.length} lessons \u00b7 {doneCount === 0 ? 'not started' : 'in progress'}</p>
+                <p className="text-xs text-zinc-500">{doneCount}/{r.nodes.length} lessons · {doneCount === 0 ? 'not started' : 'in progress'}</p>
               </Link>
             );
           })}
@@ -280,7 +280,7 @@ function BlogCard({ post }) {
         <p className="text-xs text-zinc-500 leading-relaxed mb-3">{post.excerpt}</p>
         <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-3 border-t border-zinc-100">
           <span>{post.author}</span>
-          <span className="font-semibold" style={{ color: post.accent }}>Read more \u2192</span>
+          <span className="font-semibold" style={{ color: post.accent }}>Read more →</span>
         </div>
       </div>
     </Link>
@@ -299,7 +299,7 @@ function BlogPostPage() {
       <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
       <h1 className="af-display text-2xl font-bold text-zinc-900 mt-1.5 mb-2">{post.title}</h1>
       <div className="flex items-center gap-3 text-xs text-zinc-400 mb-6">
-        <span>{post.author}</span><span>\u00b7</span><span>{post.date}</span><span>\u00b7</span><span>{post.readTime}</span>
+        <span>{post.author}</span><span>·</span><span>{post.date}</span><span>·</span><span>{post.readTime}</span>
       </div>
       <div className="space-y-4">
         {post.content.map((p, i) => <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>)}
@@ -356,7 +356,7 @@ function ToolsPage() {
         </div>
         <h1 className="af-display text-2xl font-bold text-zinc-900">Cybersecurity Tools</h1>
       </div>
-      <p className="text-sm text-zinc-500 mb-6">Industry-standard tools cybersecurity professionals use daily \u2014 for authorized testing, defense, and investigation on systems you own or have permission to work on.</p>
+      <p className="text-sm text-zinc-500 mb-6">Industry-standard tools cybersecurity professionals use daily — for authorized testing, defense, and investigation on systems you own or have permission to work on.</p>
       <div className="relative mb-4">
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tools..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
@@ -401,7 +401,7 @@ function LinkerPage() {
         </div>
         <h1 className="af-display text-2xl font-bold text-zinc-900">Linker</h1>
       </div>
-      <p className="text-sm text-zinc-500 mb-6">Links, websites, and software worth bookmarking. Every entry opens the real destination directly \u2014 no redirect in between.</p>
+      <p className="text-sm text-zinc-500 mb-6">Links, websites, and software worth bookmarking. Every entry opens the real destination directly — no redirect in between.</p>
       <div className="relative mb-4">
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search links..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
@@ -475,7 +475,7 @@ function AuthPage() {
           <button onClick={() => setMode('signup')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signup' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign up</button>
         </div>
         <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1.5">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
-        <p className="text-sm text-zinc-500 mb-7">{mode === 'signin' ? 'Sign in to pick up your roadmap where you left off.' : 'Free to join \u2014 start tracking progress across every track.'}</p>
+        <p className="text-sm text-zinc-500 mb-7">{mode === 'signin' ? 'Sign in to pick up your roadmap where you left off.' : 'Free to join — start tracking progress across every track.'}</p>
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           {mode === 'signup' && (
             <div>
@@ -497,7 +497,7 @@ function AuthPage() {
             </div>
             <div className="relative">
               <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input type={showPw ? 'text' : 'password'} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
+              <input type={showPw ? 'text' : 'password'} placeholder="••••••••" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
               <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">{showPw ? <EyeOff size={15} /> : <Eye size={15} />}</button>
             </div>
           </div>
@@ -575,7 +575,7 @@ function PrivacyPage() {
 function ContactPage() {
   return (
     <SimplePage title="Contact">
-      <p>For questions, corrections, or suggestions, reach out via the links in the footer, or open an issue on the project\u2019s GitHub repository.</p>
+      <p>For questions, corrections, or suggestions, reach out via the links in the footer, or open an issue on the project’s GitHub repository.</p>
     </SimplePage>
   );
 }
@@ -585,7 +585,7 @@ function NotFoundPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-16 text-center">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-2">Page not found</h1>
-      <p className="text-sm text-zinc-500 mb-5">That page doesn\u2019t exist \u2014 it may have moved.</p>
+      <p className="text-sm text-zinc-500 mb-5">That page doesn’t exist — it may have moved.</p>
       <Link to="/" className="text-sm font-semibold text-zinc-900 underline">Back to home</Link>
     </div>
   );
@@ -596,7 +596,7 @@ function Footer() {
   return (
     <footer className="border-t border-zinc-200 bg-white px-5 py-6 mt-8">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
-        <p>\u00A9 2026 Acarpo Web \u2014 built by Drenchack Tech Company</p>
+        <p>© 2026 Acarpo Web — built by Drenchack Tech Company</p>
         <div className="flex gap-4">
           <Link to="/about" className="hover:text-zinc-700">About</Link>
           <Link to="/privacy" className="hover:text-zinc-700">Privacy</Link>

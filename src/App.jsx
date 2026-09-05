@@ -3,13 +3,14 @@ import {
   BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams, Navigate,
 } from 'react-router-dom';
 import {
-  Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff, 
+  Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
   ExternalLink, Link2,
-} from 'lucide-react'; 
+} from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
 import { LINKS } from './linksData.js';
+import LabPage from './LabPage.jsx';
 
 const ICONS = { Shield, Palette, Wrench, Brain };
 const SITE_NAME = 'Acarpo';
@@ -169,6 +170,7 @@ function Header({ menuOpen, setMenuOpen }) {
     { to: '/', label: 'Home', end: true },
     { to: '/roadmaps', label: 'Roadmaps' },
     { to: '/tools', label: 'Tools' },
+    { to: '/lab', label: 'Lab' },
     { to: '/blog', label: 'Blog' },
     { to: '/linker', label: 'Linker' },
     { to: '/auth', label: 'Sign In' },
@@ -627,6 +629,7 @@ function AppShell() {
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/tools" element={<ToolsPage />} />
+        <Route path="/lab" element={<LabPage />} />
         <Route path="/linker" element={<LinkerPage />} />
         <Route path="/roadmaps" element={<Navigate to="/roadmaps/cybersecurity" replace />} />
         <Route path="/roadmaps/:track" element={<RoadmapsPage progress={progress} onComplete={handleComplete} />} />

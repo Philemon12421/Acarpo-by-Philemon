@@ -5,7 +5,7 @@ import { FlaskConical, Check, Terminal, Trophy } from 'lucide-react';
 // Acarpo Security Lab
 // Every challenge here is a self-contained simulation that runs entirely in
 // the visitor's own browser tab. There is no real backend, no real database,
-// and no network request involved in "solving" anything \u2014 solving a
+// and no network request involved in "solving" anything — solving a
 // challenge means recognizing a pattern (a SQLi bypass string, an XSS payload
 // shape, an IDOR parameter, etc.) and submitting the resulting flag. Nothing
 // here can be pointed at another system; it only demonstrates the concept
@@ -38,7 +38,7 @@ function FlagSubmit({ solved, onCheck, placeholder = 'ACARPO{...}' }) {
           Submit
         </button>
       </div>
-      {wrong && <p className="text-[11px] text-red-500 mt-1.5">Not quite \u2014 keep looking.</p>}
+      {wrong && <p className="text-[11px] text-red-500 mt-1.5">Not quite — keep looking.</p>}
     </div>
   );
 }
@@ -93,7 +93,7 @@ function XssChallenge({ onSolve, solved }) {
       <p className="text-xs text-zinc-500 mb-3">
         This mock "search" reflects whatever you type back onto the page (simulated, not actually
         rendered as live HTML here). Craft an input that would execute as script in a real
-        unescaped reflection \u2014 recognizing the shape of the payload is what matters.
+        unescaped reflection — recognizing the shape of the payload is what matters.
       </p>
       <input
         value={q}
@@ -150,7 +150,7 @@ function ReconChallenge({ onSolve, solved }) {
     <div>
       <p className="text-xs text-zinc-500 mb-3">
         A flag is hidden in this page's DOM in an element that isn't visually shown. Open your
-        browser's DevTools (F12 or right-click \u2192 Inspect) and look through the elements inside
+        browser's DevTools (F12 or right-click → Inspect) and look through the elements inside
         this card.
       </p>
       <div style={{ display: 'none' }} data-flag="ACARPO{d0m_1nsp3ct10n_101}">
@@ -182,15 +182,25 @@ function DecodeChallenge({ onSolve, solved }) {
 }
 
 const CHALLENGES = [
-  { id: 'sqli', title: 'SQL Injection: Login Bypass', category: 'Web \u2013 Injection', diff: 'Easy',
+  { id: 'sqli', title: 'SQL Injection: Login Bypass', category: 'Web – Injection', diff: 'Easy',
+    vulnerability: 'SQL Injection',
+    objective: 'Log in as a user without knowing a valid password, by making the underlying query always evaluate as true.',
     flag: 'ACARPO{sql_1nj3ct10n_byp4ss}', Comp: SqliChallenge, points: 100 },
-  { id: 'xss', title: 'Reflected XSS Payload', category: 'Web \u2013 Client-Side', diff: 'Easy',
+  { id: 'xss', title: 'Reflected XSS Payload', category: 'Web – Client-Side', diff: 'Easy',
+    vulnerability: 'Cross-Site Scripting (XSS)',
+    objective: 'Enter a value in the search box shaped like a real XSS payload — something that would execute as script if this page reflected it unescaped.',
     flag: 'ACARPO{xss_r3fl3ct3d}', Comp: XssChallenge, points: 100 },
-  { id: 'idor', title: 'Broken Access Control (IDOR)', category: 'Web \u2013 Access Control', diff: 'Medium',
+  { id: 'idor', title: 'Broken Access Control (IDOR)', category: 'Web – Access Control', diff: 'Medium',
+    vulnerability: 'Insecure Direct Object Reference (IDOR)',
+    objective: "You're account #2. View the data belonging to account #1 by changing the id parameter, with no other authorization check in place.",
     flag: 'ACARPO{1d0r_broken_acc3ss}', Comp: IdorChallenge, points: 150 },
   { id: 'recon', title: 'DOM Reconnaissance', category: 'Recon', diff: 'Easy',
+    vulnerability: 'Information Disclosure',
+    objective: 'Use your browser\u2019s DevTools to inspect this page\u2019s DOM and find a flag sitting in an element that isn\u2019t visually displayed.',
     flag: 'ACARPO{d0m_1nsp3ct10n_101}', Comp: ReconChallenge, points: 75 },
   { id: 'decode', title: 'Decode the Secret', category: 'Cryptography', diff: 'Easy',
+    vulnerability: 'Weak Encoding (mistaken for encryption)',
+    objective: 'Decode a Base64 string to recover the plaintext flag hidden inside it.',
     flag: 'ACARPO{b4s3_64_1s_n0t_3ncrypt10n}', Comp: DecodeChallenge, points: 75 },
 ];
 
@@ -214,13 +224,21 @@ function ChallengeCard({ challenge, solved, onSolve }) {
           </div>
           <div>
             <h3 className="af-display font-semibold text-sm text-zinc-900">{challenge.title}</h3>
-            <p className="text-[11px] text-zinc-400">{challenge.category} \u00b7 {challenge.diff} \u00b7 {challenge.points} pts</p>
+            <p className="text-[11px] text-zinc-400">{challenge.category} · {challenge.diff} · {challenge.points} pts</p>
           </div>
         </div>
         <span className="text-xs text-zinc-400">{open ? 'Hide' : 'Open'}</span>
       </button>
       {open && (
         <div className="px-4 pb-4 border-t border-zinc-100 pt-4">
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-600 mb-1">
+              Testing: {challenge.vulnerability}
+            </p>
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              <span className="font-semibold text-zinc-800">Objective — </span>{challenge.objective}
+            </p>
+          </div>
           <Comp onSolve={markSolved} solved={solved} />
           <div className="mt-3 pt-3 border-t border-zinc-100">
             <FlagSubmit solved={solved} onCheck={checkFlag} />
@@ -250,17 +268,26 @@ export default function LabPage() {
       </div>
       <p className="text-sm text-zinc-500 mb-2 max-w-xl">
         A hands-on, capture-the-flag style lab. Every challenge below is a simulation that runs
-        only in your browser \u2014 there's no real server or database behind any of it, so nothing
+        only in your browser — there's no real server or database behind any of it, so nothing
         you do here touches a live system. That also means the techniques you practice should
         only ever be used against systems you own or are explicitly authorized to test.
       </p>
+      <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-6 mt-4">
+        <p className="text-xs font-semibold text-indigo-900 mb-1">How this works</p>
+        <p className="text-xs text-indigo-800 leading-relaxed">
+          Open a challenge below to see exactly what vulnerability it's testing and what you need
+          to do — each one states its goal up front, so you're never guessing what "solving" it
+          means. Find the flag (it looks like <code className="font-mono">ACARPO&#123;...&#125;</code>) and paste it into that
+          challenge's submit box to mark it complete.
+        </p>
+      </div>
 
       <div className="flex items-center gap-3 mt-6 mb-8">
         <div className="flex-1 h-2 rounded-full bg-zinc-200 overflow-hidden">
           <div className="h-full rounded-full bg-indigo-600 transition-all duration-700" style={{ width: `${pct}%` }} />
         </div>
         <span className="text-xs font-semibold text-zinc-500 shrink-0">
-          {solvedIds.length}/{CHALLENGES.length} flags \u00b7 {earnedPoints}/{totalPoints} pts
+          {solvedIds.length}/{CHALLENGES.length} flags · {earnedPoints}/{totalPoints} pts
         </span>
       </div>
 

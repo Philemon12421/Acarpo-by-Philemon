@@ -39,6 +39,17 @@
     </script>
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
+    <div id="initial-loader" style="position:fixed;inset:0;z-index:9999;background:#fafafa;display:flex;align-items:center;justify-content:center;">
+      <div style="width:56px;height:56px;border-radius:14px;background:#18181b;display:flex;align-items:center;justify-content:center;animation:acarpo-loader-bounce 0.9s ease-in-out infinite;">
+        <span style="color:#ffffff;font-weight:700;font-size:24px;line-height:1;">A</span>
+      </div>
+      <style>
+        @keyframes acarpo-loader-bounce {
+          0%, 100% { transform: translateY(-14px); }
+          50% { transform: translateY(14px); }
+        }
+      </style>
+    </div>
     <div id="root">
       <!--
         Static fallback content. Real users with JavaScript enabled never
@@ -55,6 +66,7 @@
           <a href="/roadmaps">Roadmaps</a>
           <a href="/tools">Tools</a>
           <a href="/lab">Lab</a>
+          <a href="/docs">Docs</a>
           <a href="/blog">Blog</a>
           <a href="/linker">Linker</a>
           <a href="/auth">Sign In</a>
@@ -79,6 +91,7 @@
         <nav aria-label="Footer">
           <a href="/about">About</a>
           <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
           <a href="/contact">Contact</a>
         </nav>
       </main>

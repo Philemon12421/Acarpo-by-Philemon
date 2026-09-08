@@ -5,12 +5,13 @@ import {
 import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
-  ExternalLink, Link2,
+  ExternalLink, Link2, ShieldCheck, Info, FileText,
 } from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
 import { LINKS } from './linksData.js';
 import LabPage from './LabPage.jsx';
+import DocsPage from './DocsPage.jsx';
 
 const ICONS = { Shield, Palette, Wrench, Brain };
 const SITE_NAME = 'Acarpo';
@@ -171,6 +172,7 @@ function Header({ menuOpen, setMenuOpen }) {
     { to: '/roadmaps', label: 'Roadmaps' },
     { to: '/tools', label: 'Tools' },
     { to: '/lab', label: 'Lab' },
+    { to: '/docs', label: 'Docs' },
     { to: '/blog', label: 'Blog' },
     { to: '/linker', label: 'Linker' },
     { to: '/auth', label: 'Sign In' },
@@ -270,7 +272,7 @@ function HomePage({ progress }) {
 function BlogCard({ post }) {
   return (
     <Link to={`/blog/${post.id}`} className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden block">
-      <img src={`https://picsum.photos/seed/${post.seed}/480/280`} alt={post.title} className="w-full h-36 object-cover" />
+      <img src={post.image} alt={post.title} className="w-full h-36 object-cover" loading="lazy" />
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
@@ -295,15 +297,38 @@ function BlogPostPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-10">
       <Link to="/blog" className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 mb-5 w-fit"><ArrowLeft size={13} /> Back to blog</Link>
-      <img src={`https://picsum.photos/seed/${post.seed}/900/420`} alt={post.title} className="w-full h-56 object-cover rounded-2xl mb-6" />
+
+      <img src={post.image} alt={post.title} className="w-full h-56 sm:h-72 object-cover rounded-2xl" />
+      {post.credit && (
+        <p className="text-[11px] text-zinc-400 mt-2 mb-6">
+          Photo by <a href={post.credit.profileUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-600">{post.credit.name}</a>
+          {' '}on <a href={post.credit.photoUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-600">Unsplash</a>
+        </p>
+      )}
+
       <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
-      <h1 className="af-display text-2xl font-bold text-zinc-900 mt-1.5 mb-2">{post.title}</h1>
-      <div className="flex items-center gap-3 text-xs text-zinc-400 mb-6">
+      <h1 className="af-display text-2xl sm:text-3xl font-bold text-zinc-900 mt-1.5 mb-2 leading-tight">{post.title}</h1>
+      <div className="flex items-center gap-3 text-xs text-zinc-400 mb-8">
         <span>{post.author}</span><span>·</span><span>{post.date}</span><span>·</span><span>{post.readTime}</span>
       </div>
+
       <div className="space-y-4">
-        {post.content.map((p, i) => <p key={i} className="text-sm text-zinc-600 leading-relaxed">{p}</p>)}
+        {post.content.map((p, i) => <p key={i} className="text-[15px] text-zinc-600 leading-relaxed">{p}</p>)}
       </div>
+
+      {post.takeaways && (
+        <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5 mt-8">
+          <p className="af-display text-sm font-bold text-zinc-900 mb-3">Key takeaways</p>
+          <ul className="space-y-2">
+            {post.takeaways.map((t, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-600 leading-relaxed">
+                <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: post.accent }} />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -543,40 +568,207 @@ function AuthPage() {
 }
 
 /* --------------------------------- legal / about pages ---------------------------------- */
-function SimplePage({ title, children }) {
-  usePageTitle(title);
+function LegalHeader({ Icon, title, subtitle }) {
   return (
-    <div className="max-w-2xl mx-auto px-5 py-10">
-      <h1 className="af-display text-2xl font-bold text-zinc-900 mb-4">{title}</h1>
-      <div className="space-y-4 text-sm text-zinc-600 leading-relaxed">{children}</div>
+    <div className="mb-8">
+      <div className="flex items-center gap-2.5 mb-1.5">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-100">
+          <Icon size={18} className="text-zinc-700" strokeWidth={2.3} />
+        </div>
+        <h1 className="af-display text-2xl font-bold text-zinc-900">{title}</h1>
+      </div>
+      {subtitle && <p className="text-sm text-zinc-500">{subtitle}</p>}
     </div>
   );
 }
 
-function AboutPage() {
+function LegalSection({ title, children }) {
   return (
-    <SimplePage title="About Acarpo">
-      <p>Acarpo is a small, independent learning site built by Philemon. It offers guided, self-paced roadmaps in cybersecurity, AI, graphic design, and productivity tools, alongside a blog that goes deeper on each topic and a directory of tools and links worth knowing about.</p>
-      <p>The goal is simple: make it obvious what to learn next, and give you a real, readable explanation instead of a wall of jargon.</p>
-    </SimplePage>
+    <section className="mb-7">
+      <h2 className="af-display text-sm font-bold text-zinc-900 mb-2">{title}</h2>
+      <div className="space-y-3 text-sm text-zinc-600 leading-relaxed">{children}</div>
+    </section>
+  );
+}
+
+function AboutPage() {
+  usePageTitle('About');
+  return (
+    <div className="max-w-2xl mx-auto px-5 py-10">
+      <LegalHeader Icon={Info} title="About Acarpo" subtitle="What this site is, and who's behind it." />
+
+      <LegalSection title="What Acarpo is">
+        <p>Acarpo is an independent, self-paced learning site built by Philemon. It's organized around four guided roadmaps — Cybersecurity Fundamentals, AI & Machine Learning, Graphic Design Essentials, and Tools & Productivity Tips — plus a blog, a curated tools directory, a hands-on security lab, and a documentation reference for HTML, CSS, and JavaScript.</p>
+        <p>The goal is simple: make it obvious what to learn next, explain it without unnecessary jargon, and give you somewhere to actually practice instead of just reading about it.</p>
+      </LegalSection>
+
+      <LegalSection title="What you'll find here">
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li><span className="font-semibold text-zinc-800">Roadmaps</span> — ordered, unlockable lessons across four subjects</li>
+          <li><span className="font-semibold text-zinc-800">Blog</span> — longer articles that go deeper on specific topics</li>
+          <li><span className="font-semibold text-zinc-800">Tools</span> — a directory of real software used by cybersecurity professionals</li>
+          <li><span className="font-semibold text-zinc-800">Security Lab</span> — safe, simulated capture-the-flag challenges</li>
+          <li><span className="font-semibold text-zinc-800">Docs</span> — a quick-reference guide to HTML, CSS, and JavaScript</li>
+          <li><span className="font-semibold text-zinc-800">Linker</span> — a hand-picked list of useful external links and software</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="Get in touch">
+        <p>Questions, corrections, or ideas for the site are always welcome — see the <Link to="/contact" className="underline hover:text-zinc-800">Contact page</Link> for how to reach out.</p>
+      </LegalSection>
+    </div>
   );
 }
 
 function PrivacyPage() {
+  usePageTitle('Privacy Policy');
   return (
-    <SimplePage title="Privacy Policy">
-      <p>This site does not sell personal data. Sign-in details you provide are used only to save your roadmap progress.</p>
-      <p>If third-party services such as analytics or advertising are enabled on this site, they may use cookies to serve relevant content and measure performance, consistent with their own privacy policies.</p>
-      <p>Questions about this policy can be sent via the Contact page.</p>
-    </SimplePage>
+    <div className="max-w-2xl mx-auto px-5 py-10">
+      <LegalHeader Icon={ShieldCheck} title="Privacy Policy" subtitle="Last updated: September 2026" />
+
+      <LegalSection title="Information we collect">
+        <p>If you create an account, we store the details you provide (such as your name and email) and your roadmap progress, so you can pick up lessons where you left off. We don't require an account to browse the site, read the blog, or use the Security Lab.</p>
+        <p>Basic technical information — such as your browser type and pages visited — may be collected automatically through standard web server logs and analytics tools, if enabled.</p>
+      </LegalSection>
+
+      <LegalSection title="How we use information">
+        <p>Account details are used solely to operate the site: authenticating you, saving progress, and responding to support requests. We do not sell personal data to third parties.</p>
+      </LegalSection>
+
+      <LegalSection title="Cookies & third-party services">
+        <p>This site may use cookies for essential functionality (like staying signed in) and, if enabled, for analytics or advertising — including services like Google AdSense, which may use cookies to serve relevant ads and measure performance. Any such service operates under its own privacy policy in addition to this one.</p>
+      </LegalSection>
+
+      <LegalSection title="Data retention">
+        <p>Account and progress data is retained for as long as your account is active. You can request deletion of your data at any time via the Contact page.</p>
+      </LegalSection>
+
+      <LegalSection title="Your rights">
+        <p>Depending on your location, you may have rights to access, correct, or delete your personal data, and to object to certain processing. Reach out via the Contact page to exercise any of these rights.</p>
+      </LegalSection>
+
+      <LegalSection title="Children's privacy">
+        <p>Acarpo is not directed at children under 13, and we do not knowingly collect personal information from them.</p>
+      </LegalSection>
+
+      <LegalSection title="Changes to this policy">
+        <p>This policy may be updated occasionally to reflect changes to the site or applicable law. Material changes will be reflected by updating the date at the top of this page.</p>
+      </LegalSection>
+
+      <LegalSection title="Contact">
+        <p>Questions about this policy can be sent via the <Link to="/contact" className="underline hover:text-zinc-800">Contact page</Link>.</p>
+      </LegalSection>
+    </div>
+  );
+}
+
+function TermsPage() {
+  usePageTitle('Terms of Service');
+  return (
+    <div className="max-w-2xl mx-auto px-5 py-10">
+      <LegalHeader Icon={FileText} title="Terms of Service" subtitle="Last updated: September 2026" />
+
+      <LegalSection title="Acceptance of terms">
+        <p>By using Acarpo, you agree to these terms. If you don't agree, please don't use the site.</p>
+      </LegalSection>
+
+      <LegalSection title="Use of the site">
+        <p>Acarpo is provided for personal, educational use. You agree not to misuse the site — including attempting to disrupt its operation, scraping content at scale without permission, or using any account other than your own.</p>
+      </LegalSection>
+
+      <LegalSection title="Security Lab & educational content">
+        <p>The Security Lab, roadmap lessons, and any related content are educational simulations only. Nothing on Acarpo runs against a real backend, database, or third-party system — every "vulnerability" you interact with exists solely within your own browser session for teaching purposes.</p>
+        <p>Any technique discussed or practiced on this site should only ever be used against systems you own or are explicitly authorized to test. Acarpo is not responsible for how information learned here is applied elsewhere.</p>
+      </LegalSection>
+
+      <LegalSection title="Accounts">
+        <p>You're responsible for keeping your account credentials secure and for any activity under your account. Let us know right away via the Contact page if you suspect unauthorized access.</p>
+      </LegalSection>
+
+      <LegalSection title="Intellectual property">
+        <p>Site content — including written articles, roadmap material, and site design — belongs to Acarpo unless otherwise credited (such as photography, which is attributed to its original photographer). Tool and third-party names referenced on the site belong to their respective owners.</p>
+      </LegalSection>
+
+      <LegalSection title="No warranty">
+        <p>Acarpo is provided "as is," without warranties of any kind. We work to keep information accurate, but we don't guarantee the site will be error-free, uninterrupted, or suitable for every purpose.</p>
+      </LegalSection>
+
+      <LegalSection title="Limitation of liability">
+        <p>To the fullest extent permitted by law, Acarpo isn't liable for indirect, incidental, or consequential damages arising from your use of the site.</p>
+      </LegalSection>
+
+      <LegalSection title="Changes to these terms">
+        <p>These terms may be updated from time to time. Continuing to use the site after a change means you accept the updated terms.</p>
+      </LegalSection>
+
+      <LegalSection title="Contact">
+        <p>Questions about these terms can be sent via the <Link to="/contact" className="underline hover:text-zinc-800">Contact page</Link>.</p>
+      </LegalSection>
+    </div>
   );
 }
 
 function ContactPage() {
+  usePageTitle('Contact');
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [sent, setSent] = useState(false);
+
   return (
-    <SimplePage title="Contact">
-      <p>For questions, corrections, or suggestions, reach out via the links in the footer, or open an issue on the project’s GitHub repository.</p>
-    </SimplePage>
+    <div className="max-w-2xl mx-auto px-5 py-10">
+      <LegalHeader Icon={Mail} title="Contact" subtitle="Questions, corrections, or ideas — all welcome." />
+
+      {sent ? (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-sm text-emerald-800">
+          Thanks — your message has been noted. There's no live backend wired up to this form yet, so nothing was actually sent; use the GitHub link below in the meantime.
+        </div>
+      ) : (
+        <form
+          onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+          className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3.5 mb-6"
+        >
+          <div>
+            <label className="text-xs font-semibold text-zinc-700 mb-1 block">Name</label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Your name"
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-zinc-700 mb-1 block">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="you@example.com"
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-zinc-700 mb-1 block">Message</label>
+            <textarea
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              placeholder="What's on your mind?"
+              rows={4}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
+            />
+          </div>
+          <button type="submit" className="bg-zinc-900 text-white text-sm font-bold rounded-xl py-2.5 px-5">
+            Send message
+          </button>
+        </form>
+      )}
+
+      <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5">
+        <p className="text-sm font-semibold text-zinc-800 mb-1">Prefer GitHub?</p>
+        <p className="text-xs text-zinc-500 mb-2">Open an issue directly on the project's repository — this is the fastest way to report a bug or suggest a change.</p>
+        <a href="https://github.com/Philemon12421/Acarpo-by-Philemon" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-zinc-900 underline">
+          github.com/Philemon12421/Acarpo-by-Philemon
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -600,6 +792,7 @@ function Footer() {
         <div className="flex gap-4">
           <Link to="/about" className="hover:text-zinc-700">About</Link>
           <Link to="/privacy" className="hover:text-zinc-700">Privacy</Link>
+          <Link to="/terms" className="hover:text-zinc-700">Terms</Link>
           <Link to="/contact" className="hover:text-zinc-700">Contact</Link>
           <a href="https://github.com/Philemon12421/Acarpo-by-Philemon" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">GitHub</a>
         </div>
@@ -630,12 +823,14 @@ function AppShell() {
         <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/lab" element={<LabPage />} />
+        <Route path="/docs" element={<DocsPage />} />
         <Route path="/linker" element={<LinkerPage />} />
         <Route path="/roadmaps" element={<Navigate to="/roadmaps/cybersecurity" replace />} />
         <Route path="/roadmaps/:track" element={<RoadmapsPage progress={progress} onComplete={handleComplete} />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
@@ -645,6 +840,11 @@ function AppShell() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const loader = document.getElementById('initial-loader');
+    if (loader) loader.remove();
+  }, []);
+
   return (
     <BrowserRouter>
       <AppShell />

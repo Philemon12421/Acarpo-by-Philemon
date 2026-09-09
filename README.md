@@ -1,4 +1,4 @@
-<!-- Animated Badges & Stats -->
+<!-- Animated Badges & Stats --> 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Vercel_Serverless-black?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Serverless" />
   <img src="https://img.shields.io/badge/Frontend-React_18_%2B_Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 18" />

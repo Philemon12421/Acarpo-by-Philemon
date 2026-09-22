@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams, Navigate,
+  BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams, useLocation, Navigate,
 } from 'react-router-dom';
 import {
   Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
@@ -12,6 +12,9 @@ import { TOOLS } from './toolsData.js';
 import { LINKS } from './linksData.js';
 import LabPage from './LabPage.jsx';
 import DocsPage from './DocsPage.jsx';
+import GlobalSearch, { OPEN_SEARCH_EVENT } from './GlobalSearch.jsx';
+import Certificate from './Certificate.jsx';
+import AchievementsPage from './AchievementsPage.jsx';
 
 const ICONS = { Shield, Palette, Wrench, Brain };
 const SITE_NAME = 'Acarpo';
@@ -31,6 +34,11 @@ const GlobalStyle = () => (
     .af-node { transition: transform .15s ease; }
     .af-card:hover { border-color: #D4D4D8; transform: translateY(-2px); }
     .af-card { transition: all .18s ease; }
+    @media print {
+      body * { visibility: hidden; }
+      .certificate-print, .certificate-print * { visibility: visible; }
+      .certificate-print { position: fixed; inset: 0; margin: auto; }
+    }
   `}</style>
 );
 
@@ -173,6 +181,7 @@ function Header({ menuOpen, setMenuOpen }) {
     { to: '/tools', label: 'Tools' },
     { to: '/lab', label: 'Lab' },
     { to: '/docs', label: 'Docs' },
+    { to: '/achievements', label: 'Awards' },
     { to: '/blog', label: 'Blog' },
     { to: '/linker', label: 'Linker' },
     { to: '/auth', label: 'Sign In' },
@@ -184,21 +193,30 @@ function Header({ menuOpen, setMenuOpen }) {
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-zinc-200 px-5 py-3.5">
-      <div className="max-w-5xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5">
+      <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
           <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
             <span className="af-display text-white font-bold text-sm">A</span>
           </div>
           <span className="af-display font-bold text-zinc-900 text-sm">{SITE_NAME}</span>
         </Link>
-        <nav className="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl">
+        <nav className="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl overflow-x-auto">
           {tabs.map((t) => (
             <NavLink key={t.to} to={t.to} end={t.end} className={linkClass}>{t.label}</NavLink>
           ))}
         </nav>
-        <button className="md:hidden text-zinc-700" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent(OPEN_SEARCH_EVENT))}
+            aria-label="Search the site"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 transition"
+          >
+            <Search size={17} />
+          </button>
+          <button className="md:hidden text-zinc-700 w-8 h-8 flex items-center justify-center" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
       {menuOpen && (
         <nav className="md:hidden flex flex-col gap-1 mt-3 pt-3 border-t border-zinc-100">
@@ -366,7 +384,8 @@ function BlogPage() {
 /* --------------------------------- tools ---------------------------------- */
 function ToolsPage() {
   usePageTitle('Cybersecurity Tools');
-  const [query, setQuery] = useState('');
+  const location = useLocation();
+  const [query, setQuery] = useState(location.state?.presetQuery || '');
   const [cat, setCat] = useState('All');
   const cats = ['All', ...new Set(TOOLS.map((t) => t.category))];
   const filtered = TOOLS.filter((t) =>
@@ -411,7 +430,8 @@ function ToolsPage() {
 /* --------------------------------- linker ---------------------------------- */
 function LinkerPage() {
   usePageTitle('Linker');
-  const [query, setQuery] = useState('');
+  const location = useLocation();
+  const [query, setQuery] = useState(location.state?.presetQuery || '');
   const [cat, setCat] = useState('All');
   const cats = ['All', ...new Set(LINKS.map((l) => l.category))];
   const filtered = LINKS.filter((l) =>
@@ -459,9 +479,11 @@ function RoadmapsPage({ progress, onComplete }) {
   const navigate = useNavigate();
   const track = ROADMAPS[trackKey];
   usePageTitle(track ? track.title : 'Roadmaps');
+  const [showCert, setShowCert] = useState(false);
   if (!track) return <Navigate to="/roadmaps/cybersecurity" replace />;
   const nodes = deriveNodes(track.nodes, progress[trackKey] || []);
   const Icon = ICONS[track.iconName];
+  const isComplete = nodes.every((n) => n.status === 'done');
   return (
     <div className="max-w-3xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Roadmaps</h1>
@@ -478,9 +500,38 @@ function RoadmapsPage({ progress, onComplete }) {
           );
         })}
       </div>
+
+      {isComplete && (
+        <div className="rounded-2xl p-5 mb-6 flex items-center justify-between gap-3 flex-wrap" style={{ background: `${track.accent}0F`, border: `1px solid ${track.accent}33` }}>
+          <div className="flex items-center gap-3">
+            <Trophy size={20} style={{ color: track.accent }} className="shrink-0" />
+            <div>
+              <p className="af-display font-bold text-sm text-zinc-900">Track complete</p>
+              <p className="text-xs text-zinc-500">You've finished every lesson in {track.title}.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCert(true)}
+            className="text-xs font-bold text-white px-4 py-2 rounded-lg shrink-0"
+            style={{ background: track.accent }}
+          >
+            View certificate
+          </button>
+        </div>
+      )}
+
       <div className="bg-white border border-zinc-200 rounded-3xl p-6">
         <RoadmapPath title={track.title} subtitle={track.subtitle} accent={track.accent} Icon={Icon} nodes={nodes} onComplete={(nodeId) => onComplete(trackKey, nodeId)} />
       </div>
+
+      {showCert && (
+        <Certificate
+          trackTitle={track.title}
+          accent={track.accent}
+          lessonCount={nodes.length}
+          onClose={() => setShowCert(false)}
+        />
+      )}
     </div>
   );
 }
@@ -801,10 +852,28 @@ function Footer() {
   );
 }
 
+const PROGRESS_KEY = 'acarpo:progress';
+const DEFAULT_PROGRESS = { cybersecurity: [], ai: [], design: [], tools: [] };
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if (!raw) return DEFAULT_PROGRESS;
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_PROGRESS, ...parsed };
+  } catch {
+    return DEFAULT_PROGRESS;
+  }
+}
+
 /* ---------------------------------- app ------------------------------------ */
 function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [progress, setProgress] = useState({ cybersecurity: [], ai: [], design: [], tools: [] });
+  const [progress, setProgress] = useState(loadProgress);
+
+  useEffect(() => {
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch { /* storage unavailable, ignore */ }
+  }, [progress]);
 
   const handleComplete = (trackKey, nodeId) => {
     setProgress((prev) => ({
@@ -816,6 +885,7 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-zinc-50 af-body">
       <GlobalStyle />
+      <GlobalSearch />
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       <Routes>
         <Route path="/" element={<HomePage progress={progress} />} />
@@ -824,6 +894,7 @@ function AppShell() {
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/lab" element={<LabPage />} />
         <Route path="/docs" element={<DocsPage />} />
+        <Route path="/achievements" element={<AchievementsPage progress={progress} />} />
         <Route path="/linker" element={<LinkerPage />} />
         <Route path="/roadmaps" element={<Navigate to="/roadmaps/cybersecurity" replace />} />
         <Route path="/roadmaps/:track" element={<RoadmapsPage progress={progress} onComplete={handleComplete} />} />

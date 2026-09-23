@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Search, Code2 } from 'lucide-react';
 import { DOCS } from './docsData.js';
 
@@ -16,8 +17,8 @@ function CodeBlock({ code }) {
   );
 }
 
-function DocItem({ item, accent }) {
-  const [open, setOpen] = useState(false);
+function DocItem({ item, autoOpen }) {
+  const [open, setOpen] = useState(!!autoOpen);
   return (
     <div className="border border-zinc-200 rounded-xl overflow-hidden bg-white">
       <button onClick={() => setOpen(!open)} className="w-full text-left px-4 py-3 flex items-center justify-between gap-3">
@@ -35,9 +36,10 @@ function DocItem({ item, accent }) {
 }
 
 export default function DocsPage() {
-  const [active, setActive] = useState('html');
-  const [query, setQuery] = useState('');
-  const lang = LANGS.find((l) => l.key === active);
+  const [searchParams] = useSearchParams();
+  const [active, setActive] = useState(searchParams.get('lang') || 'html');
+  const [query, setQuery] = useState(searchParams.get('q') || '');
+  const lang = LANGS.find((l) => l.key === active) || LANGS[0];
 
   useEffect(() => {
     document.title = `${lang.label} Docs — Acarpo`;
@@ -104,7 +106,7 @@ export default function DocsPage() {
             </h2>
             <div className="space-y-2">
               {section.items.map((item) => (
-                <DocItem key={item.name} item={item} accent={lang.color} />
+                <DocItem key={item.name} item={item} autoOpen={item.name === searchParams.get('q')} />
               ))}
             </div>
           </div>

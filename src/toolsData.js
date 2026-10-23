@@ -29,3 +29,14 @@ export const TOOLS = [
   { id: 12, name: 'CyberChef', category: 'Platforms', url: 'https://gchq.github.io/CyberChef/',
     desc: 'A browser-based "cyber Swiss army knife" for encoding, decoding, hashing, and analyzing data without installing anything.' },
 ];
+
+// Appended specialized mock categories
+export const MOCK_TOOLS = [
+  { id: 13, name: 'ChatGPT', category: 'AI Generation', url: 'https://chat.openai.com', desc: 'A conversational AI model for natural language understanding and text generation.' },
+  { id: 14, name: 'Midjourney', category: 'AI Generation', url: 'https://www.midjourney.com', desc: 'An independent research lab exploring new mediums of thought and expanding the imaginative powers of the human species.' },
+  { id: 15, name: 'AWS CloudFormation', category: 'Cloud Infrastructure', url: 'https://aws.amazon.com/cloudformation/', desc: 'Model and provision all your cloud infrastructure resources with cloud resources.' },
+  { id: 16, name: 'Terraform', category: 'Cloud Infrastructure', url: 'https://www.terraform.io/', desc: 'An open-source infrastructure as code software tool created by HashiCorp.' },
+  { id: 17, name: 'SonarQube', category: 'DevSecOps', url: 'https://www.sonarqube.org/', desc: 'Continuous code quality and code security inspection.' },
+  { id: 18, name: 'GitLab CI/CD', category: 'DevSecOps', url: 'https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/', desc: 'Automate building, testing, and deploying your code.' },
+];
+TOOLS.push(...MOCK_TOOLS);

@@ -10,11 +10,8 @@ import {
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
 import { LINKS } from './linksData.js';
-import LabPage from './LabPage.jsx';
 import DocsPage from './DocsPage.jsx';
 import GlobalSearch, { OPEN_SEARCH_EVENT } from './GlobalSearch.jsx';
-import Certificate from './Certificate.jsx';
-import AchievementsPage from './AchievementsPage.jsx';
 
 const ICONS = { Shield, Palette, Wrench, Brain };
 const SITE_NAME = 'Acarpo';
@@ -179,12 +176,8 @@ function Header({ menuOpen, setMenuOpen }) {
     { to: '/', label: 'Home', end: true },
     { to: '/roadmaps', label: 'Roadmaps' },
     { to: '/tools', label: 'Tools' },
-    { to: '/lab', label: 'Lab' },
     { to: '/docs', label: 'Docs' },
-    { to: '/achievements', label: 'Awards' },
     { to: '/blog', label: 'Blog' },
-    { to: '/linker', label: 'Linker' },
-    { to: '/auth', label: 'Sign In' },
   ];
   const linkClass = ({ isActive }) =>
     `px-3 py-1.5 rounded-lg text-xs font-semibold transition ${isActive ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`;
@@ -290,7 +283,7 @@ function HomePage({ progress }) {
 function BlogCard({ post }) {
   return (
     <Link to={`/blog/${post.id}`} className="af-card bg-white border border-zinc-200 rounded-2xl overflow-hidden block">
-      <img src={post.image} alt={post.title} className="w-full h-36 object-cover" loading="lazy" />
+      {post.image ? <img src={post.image} alt={post.title} className="w-full h-48 object-cover" loading="lazy" /> : <div className="w-full h-48 bg-zinc-200" />}
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: post.accent }}>{post.cat}</span>
@@ -330,9 +323,9 @@ function BlogPostPage() {
         <span>{post.author}</span><span>·</span><span>{post.date}</span><span>·</span><span>{post.readTime}</span>
       </div>
 
-      <div className="space-y-4">
+      <article className="prose prose-zinc lg:prose-lg max-w-none">
         {post.content.map((p, i) => <p key={i} className="text-[15px] text-zinc-600 leading-relaxed">{p}</p>)}
-      </div>
+      </article>
 
       {post.takeaways && (
         <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5 mt-8">
@@ -361,7 +354,7 @@ function BlogPage() {
     (p.title.toLowerCase().includes(query.toLowerCase()) || p.excerpt.toLowerCase().includes(query.toLowerCase()))
   );
   return (
-    <div className="max-w-5xl mx-auto px-5 py-10">
+    <div className="max-w-7xl mx-auto px-5 py-10">
       <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Blog</h1>
       <p className="text-sm text-zinc-500 mb-6">Deeper dives to go with each roadmap.</p>
       <div className="relative mb-4">
@@ -383,7 +376,7 @@ function BlogPage() {
 
 /* --------------------------------- tools ---------------------------------- */
 function ToolsPage() {
-  usePageTitle('Cybersecurity Tools');
+  usePageTitle('Tools');
   const location = useLocation();
   const [query, setQuery] = useState(location.state?.presetQuery || '');
   const [cat, setCat] = useState('All');
@@ -394,13 +387,10 @@ function ToolsPage() {
   );
   return (
     <div className="max-w-5xl mx-auto px-5 py-10">
-      <div className="flex items-center gap-2.5 mb-1.5">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#4338CA1A' }}>
-          <Shield size={18} style={{ color: '#4338CA' }} strokeWidth={2.3} />
-        </div>
-        <h1 className="af-display text-2xl font-bold text-zinc-900">Cybersecurity Tools</h1>
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-10 text-white text-center mb-8 shadow-lg">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Explore Over 100,000+ Tools</h2>
+        <p className="opacity-90">Our database spans across every specialty, constantly updated.</p>
       </div>
-      <p className="text-sm text-zinc-500 mb-6">Industry-standard tools cybersecurity professionals use daily — for authorized testing, defense, and investigation on systems you own or have permission to work on.</p>
       <div className="relative mb-4">
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tools..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
@@ -428,52 +418,6 @@ function ToolsPage() {
 }
 
 /* --------------------------------- linker ---------------------------------- */
-function LinkerPage() {
-  usePageTitle('Linker');
-  const location = useLocation();
-  const [query, setQuery] = useState(location.state?.presetQuery || '');
-  const [cat, setCat] = useState('All');
-  const cats = ['All', ...new Set(LINKS.map((l) => l.category))];
-  const filtered = LINKS.filter((l) =>
-    (cat === 'All' || l.category === cat) &&
-    (l.name.toLowerCase().includes(query.toLowerCase()) || l.desc.toLowerCase().includes(query.toLowerCase()))
-  );
-  return (
-    <div className="max-w-5xl mx-auto px-5 py-10">
-      <div className="flex items-center gap-2.5 mb-1.5">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-100">
-          <Link2 size={18} className="text-zinc-700" strokeWidth={2.3} />
-        </div>
-        <h1 className="af-display text-2xl font-bold text-zinc-900">Linker</h1>
-      </div>
-      <p className="text-sm text-zinc-500 mb-6">Links, websites, and software worth bookmarking. Every entry opens the real destination directly — no redirect in between.</p>
-      <div className="relative mb-4">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search links..." className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400" />
-      </div>
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {cats.map((c) => (
-          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${cat === c ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-500 border-zinc-200'}`}>{c}</button>
-        ))}
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((l) => (
-          <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="af-card bg-white border border-zinc-200 rounded-2xl p-4 block">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-400">{l.category}</span>
-              <ExternalLink size={13} className="text-zinc-300" />
-            </div>
-            <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1.5">{l.name}</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed">{l.desc}</p>
-          </a>
-        ))}
-        {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No links match that search.</p>}
-      </div>
-    </div>
-  );
-}
-
-/* --------------------------------- roadmaps page ---------------------------------- */
 function RoadmapsPage({ progress, onComplete }) {
   const { track: trackKey } = useParams();
   const navigate = useNavigate();
@@ -485,21 +429,24 @@ function RoadmapsPage({ progress, onComplete }) {
   const Icon = ICONS[track.iconName];
   const isComplete = nodes.every((n) => n.status === 'done');
   return (
-    <div className="max-w-3xl mx-auto px-5 py-10">
-      <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Roadmaps</h1>
-      <p className="text-sm text-zinc-500 mb-6">Pick a track and work top to bottom. Everything starts locked except the first lesson.</p>
-      <div className="flex gap-2 mb-8 flex-wrap">
-        {Object.entries(ROADMAPS).map(([key, r]) => {
-          const TabIcon = ICONS[r.iconName];
-          const isActive = key === trackKey;
-          return (
-            <button key={key} onClick={() => navigate(`/roadmaps/${key}`)} className="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
-              style={isActive ? { background: r.accent, borderColor: r.accent, color: '#fff' } : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}>
-              <TabIcon size={14} /> {r.title.split(' ')[0]}
-            </button>
-          );
-        })}
+    <div className="max-w-7xl mx-auto px-5 py-10 flex flex-col md:flex-row gap-8">
+      <div className="w-full md:w-64 shrink-0 flex flex-col gap-2">
+        <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1">Roadmaps</h1>
+        <p className="text-sm text-zinc-500 mb-4">Pick a track and work top to bottom. Everything starts locked except the first lesson.</p>
+        <div className="flex flex-col gap-2">
+          {Object.entries(ROADMAPS).map(([key, r]) => {
+            const TabIcon = ICONS[r.iconName];
+            const isActive = key === trackKey;
+            return (
+              <button key={key} onClick={() => navigate(`/roadmaps/${key}`)} className="w-full text-left justify-start px-4 py-3 rounded-xl text-xs font-bold border flex items-center gap-1.5"
+                style={isActive ? { background: r.accent, borderColor: r.accent, color: '#fff' } : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}>
+                <TabIcon size={14} /> {r.title.split(' ')[0]}
+              </button>
+            );
+          })}
+        </div>
       </div>
+      <div className="flex-1 min-w-0">
 
       {isComplete && (
         <div className="rounded-2xl p-5 mb-6 flex items-center justify-between gap-3 flex-wrap" style={{ background: `${track.accent}0F`, border: `1px solid ${track.accent}33` }}>
@@ -524,101 +471,12 @@ function RoadmapsPage({ progress, onComplete }) {
         <RoadmapPath title={track.title} subtitle={track.subtitle} accent={track.accent} Icon={Icon} nodes={nodes} onComplete={(nodeId) => onComplete(trackKey, nodeId)} />
       </div>
 
-      {showCert && (
-        <Certificate
-          trackTitle={track.title}
-          accent={track.accent}
-          lessonCount={nodes.length}
-          onClose={() => setShowCert(false)}
-        />
-      )}
+      </div>
     </div>
   );
 }
 
 /* --------------------------------- auth ---------------------------------- */
-function AuthPage() {
-  usePageTitle('Sign In');
-  const [mode, setMode] = useState('signin');
-  const [showPw, setShowPw] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-
-  return (
-    <div className="max-w-4xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-6 items-stretch">
-      <div className="bg-white border border-zinc-200 rounded-3xl p-7 md:p-8">
-        <div className="flex gap-1 bg-zinc-100 p-1 rounded-xl mb-7 w-fit">
-          <button onClick={() => setMode('signin')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signin' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign in</button>
-          <button onClick={() => setMode('signup')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${mode === 'signup' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500'}`}>Sign up</button>
-        </div>
-        <h1 className="af-display text-2xl font-bold text-zinc-900 mb-1.5">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
-        <p className="text-sm text-zinc-500 mb-7">{mode === 'signin' ? 'Sign in to pick up your roadmap where you left off.' : 'Free to join — start tracking progress across every track.'}</p>
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-          {mode === 'signup' && (
-            <div>
-              <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Full name</label>
-              <input type="text" placeholder="Jane Doe" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
-            </div>
-          )}
-          <div>
-            <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Email address</label>
-            <div className="relative">
-              <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input type="email" placeholder="you@example.com" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-zinc-700 block">Password</label>
-              {mode === 'signin' && <button type="button" className="text-[11px] font-semibold text-zinc-400 hover:text-zinc-700">Forgot password?</button>}
-            </div>
-            <div className="relative">
-              <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input type={showPw ? 'text' : 'password'} placeholder="••••••••" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">{showPw ? <EyeOff size={15} /> : <Eye size={15} />}</button>
-            </div>
-          </div>
-          {mode === 'signup' && (
-            <label className="flex items-start gap-2 text-xs text-zinc-500 pt-1 cursor-pointer">
-              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 accent-zinc-900" />
-              I agree to the Terms of Service and Privacy Policy
-            </label>
-          )}
-          <button type="submit" disabled={mode === 'signup' && !agreed} className="w-full bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl py-2.5 mt-2 transition">
-            {mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
-        <div className="flex items-center gap-3 my-6">
-          <div className="h-px bg-zinc-100 flex-1" /><span className="text-[11px] text-zinc-400">or continue with</span><div className="h-px bg-zinc-100 flex-1" />
-        </div>
-        <button type="button" className="w-full border border-zinc-200 hover:bg-zinc-50 rounded-xl py-2.5 text-sm font-semibold text-zinc-700 transition flex items-center justify-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.4H12v4.5h6.5c-.3 1.5-1.1 2.7-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.7z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10.1 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.3.6 4.5 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1c.9-2.8 3.5-4.8 6.6-4.8z"/></svg>
-          Google
-        </button>
-      </div>
-      <div className="rounded-3xl p-7 md:p-8 text-white flex flex-col justify-between" style={{ background: 'linear-gradient(155deg, #18181B 0%, #27272A 55%, #312E81 100%)' }}>
-        <div>
-          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center mb-6"><span className="af-display font-bold text-sm">A</span></div>
-          <h2 className="af-display font-bold text-2xl leading-snug mb-3">One account, every roadmap.</h2>
-          <p className="text-sm text-zinc-300 leading-relaxed">Track lessons completed, pick up exactly where you left off, and move between Cybersecurity, AI, Design, and Tools without losing progress.</p>
-        </div>
-        <div className="space-y-4 mt-8 pt-6 border-t border-white/10">
-          {[
-            { Icon: Shield, label: '4 guided learning tracks' },
-            { Icon: Trophy, label: '24+ hands-on lessons' },
-            { Icon: Sparkles, label: 'Free to use, always' },
-          ].map(({ Icon, label }, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm text-zinc-200">
-              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><Icon size={13} strokeWidth={2.3} /></div>
-              {label}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* --------------------------------- legal / about pages ---------------------------------- */
 function LegalHeader({ Icon, title, subtitle }) {
   return (
     <div className="mb-8">
@@ -892,13 +750,9 @@ function AppShell() {
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/tools" element={<ToolsPage />} />
-        <Route path="/lab" element={<LabPage />} />
         <Route path="/docs" element={<DocsPage />} />
-        <Route path="/achievements" element={<AchievementsPage progress={progress} />} />
-        <Route path="/linker" element={<LinkerPage />} />
         <Route path="/roadmaps" element={<Navigate to="/roadmaps/cybersecurity" replace />} />
         <Route path="/roadmaps/:track" element={<RoadmapsPage progress={progress} onComplete={handleComplete} />} />
-        <Route path="/auth" element={<AuthPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />

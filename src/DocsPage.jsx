@@ -56,43 +56,48 @@ export default function DocsPage() {
   const totalItems = lang.sections.reduce((sum, s) => sum + s.items.length, 0);
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-10">
-      <div className="flex items-center gap-2.5 mb-1.5">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${lang.color}1A` }}>
-          <BookOpen size={18} style={{ color: lang.color }} strokeWidth={2.3} />
+    <div className="max-w-7xl mx-auto px-5 py-10 flex flex-col md:flex-row gap-8">
+      <div className="w-full md:w-64 shrink-0 space-y-6">
+        <div>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${lang.color}1A` }}>
+              <BookOpen size={18} style={{ color: lang.color }} strokeWidth={2.3} />
+            </div>
+            <h1 className="af-display text-2xl font-bold text-zinc-900">Docs</h1>
+          </div>
+          <p className="text-sm text-zinc-500 mb-6 max-w-xl">
+            A clean, practical reference for HTML, CSS, and JavaScript fundamentals — the core
+            elements, properties, and patterns worth actually knowing, each with a short example.
+          </p>
         </div>
-        <h1 className="af-display text-2xl font-bold text-zinc-900">Docs</h1>
-      </div>
-      <p className="text-sm text-zinc-500 mb-6 max-w-xl">
-        A clean, practical reference for HTML, CSS, and JavaScript fundamentals — the core
-        elements, properties, and patterns worth actually knowing, each with a short example.
-      </p>
 
-      <div className="flex gap-2 mb-5">
-        {LANGS.map((l) => (
-          <button
-            key={l.key}
-            onClick={() => { setActive(l.key); setQuery(''); }}
-            className="px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
-            style={active === l.key
-              ? { background: l.color, borderColor: l.color, color: '#fff' }
-              : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}
-          >
-            <Code2 size={13} /> {l.label}
-          </button>
-        ))}
-      </div>
+        <div className="flex flex-wrap gap-2 mb-5">
+          {LANGS.map((l) => (
+            <button
+              key={l.key}
+              onClick={() => { setActive(l.key); setQuery(''); }}
+              className="px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5"
+              style={active === l.key
+                ? { background: l.color, borderColor: l.color, color: '#fff' }
+                : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}
+            >
+              <Code2 size={13} /> {l.label}
+            </button>
+          ))}
+        </div>
 
-      <div className="relative mb-6">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={`Search ${lang.label} reference...`}
-          className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
-        />
+        <div className="relative mb-6">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`Search ${lang.label} reference...`}
+            className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
+          />
+        </div>
       </div>
 
+      <div className="flex-1 min-w-0 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
       <p className="text-[11px] text-zinc-400 mb-4">
         {filteredSections.reduce((sum, s) => sum + s.items.length, 0)} of {totalItems} entries
       </p>
@@ -114,6 +119,7 @@ export default function DocsPage() {
         {filteredSections.length === 0 && (
           <p className="text-sm text-zinc-400">No entries match that search.</p>
         )}
+      </div>
       </div>
     </div>
   );

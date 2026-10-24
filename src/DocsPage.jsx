@@ -3,11 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Search, Code2 } from 'lucide-react';
 import { DOCS } from './docsData.js';
 
-const LANGS = [
-  { key: 'html', ...DOCS.html },
-  { key: 'css', ...DOCS.css },
-  { key: 'js', ...DOCS.js },
-];
+const LANGS = Object.entries(DOCS).map(([key, value]) => ({ key, ...value }));
 
 function CodeBlock({ code }) {
   return (

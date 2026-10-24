@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
-import { LINKS } from './linksData.js';
 import DocsPage from './DocsPage.jsx';
 import GlobalSearch, { OPEN_SEARCH_EVENT } from './GlobalSearch.jsx';
 
@@ -380,11 +379,13 @@ function ToolsPage() {
   const location = useLocation();
   const [query, setQuery] = useState(location.state?.presetQuery || '');
   const [cat, setCat] = useState('All');
+  const [limit, setLimit] = useState(60);
   const cats = ['All', ...new Set(TOOLS.map((t) => t.category))];
   const filtered = TOOLS.filter((t) =>
     (cat === 'All' || t.category === cat) &&
     (t.name.toLowerCase().includes(query.toLowerCase()) || t.desc.toLowerCase().includes(query.toLowerCase()))
   );
+  const paginated = filtered.slice(0, limit);
   return (
     <div className="max-w-5xl mx-auto px-5 py-10">
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-10 text-white text-center mb-8 shadow-lg">
@@ -401,18 +402,28 @@ function ToolsPage() {
         ))}
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((t) => (
-          <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" className="af-card bg-white border border-zinc-200 rounded-2xl p-4 block">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-indigo-600">{t.category}</span>
-              <ExternalLink size={13} className="text-zinc-300" />
+        {paginated.map((t) => (
+          <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" className="af-card bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between block relative group">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-indigo-600">{t.category}</span>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${t.pricing === 'Free' ? 'bg-green-100 text-green-700' : t.pricing === 'Open Source' ? 'bg-blue-100 text-blue-700' : t.pricing === 'Freemium' ? 'bg-orange-100 text-orange-700' : 'bg-zinc-100 text-zinc-700'}`}>{t.pricing}</span>
+              </div>
+              <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1.5">{t.name}</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed line-clamp-3">{t.desc}</p>
             </div>
-            <h3 className="af-display font-semibold text-sm text-zinc-900 mb-1.5">{t.name}</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed">{t.desc}</p>
           </a>
         ))}
         {filtered.length === 0 && <p className="text-sm text-zinc-400 col-span-full">No tools match that search.</p>}
       </div>
+
+      {filtered.length > limit && (
+        <div className="mt-10 flex justify-center">
+          <button onClick={() => setLimit(l => l + 60)} className="bg-zinc-900 hover:bg-zinc-800 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition">
+            Load More Tools ({filtered.length - limit} remaining)
+          </button>
+        </div>
+      )}
     </div>
   );
 }

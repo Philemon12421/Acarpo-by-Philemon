@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://acarpo.vercel.app/sitemap.xml

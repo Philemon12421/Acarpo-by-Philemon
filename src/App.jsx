@@ -3,9 +3,9 @@ import {
   BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams, useLocation, Navigate,
 } from 'react-router-dom';
 import {
-  Shield, Check, Lock, Play, Trophy, Search, Mail, KeyRound, Eye, EyeOff,
+  Shield, Check, Lock, Play, Search, Mail, KeyRound, Eye, EyeOff,
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
-  ExternalLink, Link2, ShieldCheck, Info, FileText,
+  ExternalLink, ShieldCheck, Info, FileText,
 } from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';

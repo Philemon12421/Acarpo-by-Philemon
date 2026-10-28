@@ -24,4 +24,6 @@ export const LINKS = [
     desc: 'Collaborative interface design tool used for mockups and prototypes.' },
   { id: 6, name: 'Acarpo GitHub', url: 'https://github.com/Philemon12421/Acarpo-by-Philemon', category: 'This Project',
     desc: 'Source code for this site.' },
+  { id: 7, name: 'Cartesia', url: 'https://play.cartesia.ai/', category: 'AI Tools',
+    desc: 'Platform for state-of-the-art text-to-speech generation with natural, expressive voices.' },
 ];

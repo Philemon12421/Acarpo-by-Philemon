@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------------------
 
 export const LINKS = [
-  { id: 1, name: 'Acarpo GitHub', url: 'https://github.com/Philemon12421/Acarpo-by-Philemon', category: 'This Project',
+  { id: 1, name: 'Acarpo GitHub', url: 'https://github.com/Philemon12421/Acarpo-by-Philemon', category: 'Github',
     desc: 'Source code for this site.' },
   { id: 2, name: 'Cartesia', url: 'https://play.cartesia.ai/', category: 'AI Tools',
     desc: 'Platform for state-of-the-art text-to-speech generation with natural, expressive voices.' },

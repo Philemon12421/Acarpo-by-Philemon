@@ -5,10 +5,12 @@ import {
 import {
   Shield, Check, Lock, Play, Search, Mail, KeyRound, Eye, EyeOff,
   Sparkles, Palette, Wrench, Brain, ArrowRight, ArrowLeft, Clock, Menu, X,
-  ExternalLink, ShieldCheck, Info, FileText,
+  ExternalLink, ShieldCheck, Info, FileText, Trophy
 } from 'lucide-react';
 import { ROADMAPS, BLOG_POSTS } from './data.js';
 import { TOOLS } from './toolsData.js';
+import { LINKS } from './linksData.js';
+import { AFFILIATES } from './affiliatesData.js';
 import DocsPage from './DocsPage.jsx';
 import GlobalSearch, { OPEN_SEARCH_EVENT } from './GlobalSearch.jsx';
 
@@ -177,6 +179,8 @@ function Header({ menuOpen, setMenuOpen }) {
     { to: '/tools', label: 'Tools' },
     { to: '/docs', label: 'Docs' },
     { to: '/blog', label: 'Blog' },
+    { to: '/links', label: 'Links' },
+    { to: '/affiliates', label: 'Affiliates' },
   ];
   const linkClass = ({ isActive }) =>
     `px-3 py-1.5 rounded-lg text-xs font-semibold transition ${isActive ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`;
@@ -428,7 +432,124 @@ function ToolsPage() {
   );
 }
 
-/* --------------------------------- linker ---------------------------------- */
+/* --------------------------------- links ---------------------------------- */
+function LinksPage() {
+  usePageTitle('Links');
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState('All');
+  const cats = ['All', ...new Set(LINKS.map((l) => l.category))];
+  const filtered = LINKS.filter((l) =>
+    (cat === 'All' || l.category === cat) &&
+    (l.name.toLowerCase().includes(query.toLowerCase()) || l.desc.toLowerCase().includes(query.toLowerCase()))
+  );
+  return (
+    <div className="max-w-5xl mx-auto px-5 py-10">
+      <div className="bg-gradient-to-r from-zinc-800 to-black rounded-3xl p-8 md:p-10 text-white mb-8 shadow-xl relative overflow-hidden">
+        <div className="relative z-10">
+          <span className="inline-block text-[11px] font-bold px-2.5 py-1 bg-white/10 text-white/80 rounded-full border border-white/20 uppercase tracking-wider mb-4">
+            Curated Directory
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">Hand-picked links<br/>for your workflow.</h2>
+          <p className="text-zinc-400 max-w-lg text-sm leading-relaxed mb-6">A collection of resources, tools, and sites I frequently recommend or use. Updated directly via GitHub.</p>
+          <a href="https://github.com/Philemon12421/Acarpo-by-Philemon/blob/main/src/linksData.js" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-black px-5 py-2.5 rounded-xl text-xs font-bold transition hover:bg-zinc-200">
+            Suggest a link <ExternalLink size={14} />
+          </a>
+        </div>
+        <div className="absolute right-0 bottom-0 opacity-20 pointer-events-none transform translate-x-1/4 translate-y-1/4">
+          <Sparkles size={240} />
+        </div>
+      </div>
+      <div className="relative mb-5">
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search links..." className="w-full bg-white border border-zinc-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all shadow-sm" />
+      </div>
+      <div className="flex gap-2.5 mb-8 flex-wrap">
+        {cats.map((c) => (
+          <button key={c} onClick={() => setCat(c)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${cat === c ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'}`}>{c}</button>
+        ))}
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((l) => (
+          <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="group bg-white border border-zinc-200 rounded-2xl p-5 flex flex-col justify-between transition-all hover:border-zinc-300 hover:shadow-lg hover:-translate-y-1">
+            <div>
+              <div className="flex items-start justify-between mb-3 gap-2">
+                <h3 className="af-display font-bold text-base text-zinc-900 group-hover:text-zinc-600 transition-colors">{l.name}</h3>
+                <span className="text-[10px] font-bold px-2 py-1 rounded bg-zinc-100 text-zinc-600 uppercase tracking-wide shrink-0">{l.category}</span>
+              </div>
+              <p className="text-sm text-zinc-500 leading-relaxed">{l.desc}</p>
+            </div>
+            <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
+              <span className="text-xs text-zinc-400 truncate max-w-[200px]">{new URL(l.url).hostname}</span>
+              <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-400 group-hover:bg-zinc-900 group-hover:text-white transition-all">
+                <ArrowRight size={14} className="-rotate-45" />
+              </div>
+            </div>
+          </a>
+        ))}
+        {filtered.length === 0 && <div className="col-span-full py-12 text-center bg-white border border-dashed border-zinc-300 rounded-2xl"><p className="text-sm text-zinc-500 font-medium">No links match your search.</p></div>}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------- affiliates ---------------------------------- */
+function AffiliatesPage() {
+  usePageTitle('Affiliates');
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState('All');
+  const cats = ['All', ...new Set(AFFILIATES.map((a) => a.category))];
+  const filtered = AFFILIATES.filter((a) =>
+    (cat === 'All' || a.category === cat) &&
+    (a.name.toLowerCase().includes(query.toLowerCase()) || a.desc.toLowerCase().includes(query.toLowerCase()))
+  );
+  return (
+    <div className="max-w-5xl mx-auto px-5 py-10">
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-8 md:p-10 text-white mb-8 shadow-xl relative overflow-hidden">
+        <div className="relative z-10">
+          <span className="inline-block text-[11px] font-bold px-2.5 py-1 bg-white/10 text-white/80 rounded-full border border-white/20 uppercase tracking-wider mb-4">
+            Partner Products
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">Recommended Tools<br/>& Services.</h2>
+          <p className="text-emerald-100 max-w-lg text-sm leading-relaxed mb-6">These are products I use and recommend. By using these links, you support my work at no extra cost to you.</p>
+        </div>
+        <div className="absolute right-0 bottom-0 opacity-20 pointer-events-none transform translate-x-1/4 translate-y-1/4">
+          <Sparkles size={240} />
+        </div>
+      </div>
+      <div className="relative mb-5">
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search affiliates..." className="w-full bg-white border border-zinc-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm" />
+      </div>
+      <div className="flex gap-2.5 mb-8 flex-wrap">
+        {cats.map((c) => (
+          <button key={c} onClick={() => setCat(c)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${cat === c ? 'bg-emerald-700 text-white border-emerald-700 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-emerald-50 hover:text-emerald-700'}`}>{c}</button>
+        ))}
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((a) => (
+          <div key={a.id} className="group bg-white border border-zinc-200 rounded-2xl p-5 flex flex-col justify-between transition-all hover:border-emerald-300 hover:shadow-lg hover:-translate-y-1">
+            <div>
+              <div className="flex items-start justify-between mb-3 gap-2">
+                <h3 className="af-display font-bold text-base text-zinc-900 group-hover:text-emerald-700 transition-colors">{a.name}</h3>
+                <span className="text-[10px] font-bold px-2 py-1 rounded bg-emerald-50 text-emerald-700 uppercase tracking-wide shrink-0 border border-emerald-100">{a.category}</span>
+              </div>
+              <p className="text-sm text-zinc-500 leading-relaxed mb-4">{a.desc}</p>
+            </div>
+            <div className="mt-auto pt-4 border-t border-zinc-100 flex items-center justify-between">
+              <span className="text-sm font-bold text-zinc-900">{a.price || 'View Details'}</span>
+              <a href={a.url} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5">
+                Get it now <ArrowRight size={14} />
+              </a>
+            </div>
+          </div>
+        ))}
+        {filtered.length === 0 && <div className="col-span-full py-12 text-center bg-white border border-dashed border-zinc-300 rounded-2xl"><p className="text-sm text-zinc-500 font-medium">No products match your search.</p></div>}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------- roadmaps ---------------------------------- */
 function RoadmapsPage({ progress, onComplete }) {
   const { track: trackKey } = useParams();
   const navigate = useNavigate();
@@ -762,6 +883,8 @@ function AppShell() {
         <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/docs" element={<DocsPage />} />
+        <Route path="/links" element={<LinksPage />} />
+        <Route path="/affiliates" element={<AffiliatesPage />} />
         <Route path="/roadmaps" element={<Navigate to="/roadmaps/cybersecurity" replace />} />
         <Route path="/roadmaps/:track" element={<RoadmapsPage progress={progress} onComplete={handleComplete} />} />
         <Route path="/about" element={<AboutPage />} />

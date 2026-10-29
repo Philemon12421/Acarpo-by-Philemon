@@ -1,169 +1,424 @@
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import {
+  BookOpen, Search, Code2, Copy, Check, ExternalLink, ChevronDown,
+  Lightbulb, AlertTriangle, Link2, ChevronsUpDown, ListTree,
+} from 'lucide-react';
+import { DOCS } from './docsData.js';
 
-export const DOCS = {
-  html: {
-    label: 'HTML', color: '#E34F26',
-    sections: [
-      {
-        title: 'Document Structure',
-        items: [
-          { name: '<!DOCTYPE html>', desc: 'Declares the document as HTML5, ensuring browsers render it in standards mode.', code: '<!DOCTYPE html>\n<html lang="en">\n  ...\n</html>' },
-          { name: '<html>', desc: 'The root element of an HTML page. All other elements must be descendants of this.', code: '<html lang="en">\n  <head>...</head>\n  <body>...</body>\n</html>' },
-          { name: '<head>', desc: 'Contains metadata about the document (title, scripts, styles) that isn\'t displayed directly.', code: '<head>\n  <meta charset="UTF-8">\n  <title>Page Title</title>\n</head>' },
-          { name: '<body>', desc: 'Contains all the visible content of the web page, like text, images, and links.', code: '<body>\n  <h1>Welcome</h1>\n  <p>Hello world!</p>\n</body>' },
-        ]
-      },
-      {
-        title: 'Text Formatting',
-        items: [
-          { name: '<h1> to <h6>', desc: 'Defines HTML headings. <h1> is the most important, <h6> is the least. Only use one <h1> per page.', code: '<h1>Main Title</h1>\n<h2>Subsection</h2>' },
-          { name: '<p>', desc: 'Defines a paragraph. Browsers automatically add some space (margin) before and after it.', code: '<p>This is a standard paragraph of text.</p>' },
-          { name: '<strong>', desc: 'Defines text with strong importance. Browsers render this as bold text.', code: '<p>This is <strong>important</strong> text.</p>' },
-          { name: '<em>', desc: 'Defines emphasized text. Browsers render this as italicized text.', code: '<p>You <em>must</em> read this.</p>' },
-        ]
-      },
-      {
-        title: 'Links & Media',
-        items: [
-          { name: '<a>', desc: 'Defines a hyperlink. The href attribute specifies the URL of the page the link goes to.', code: '<a href="https://example.com" target="_blank">Visit Example</a>' },
-          { name: '<img>', desc: 'Embeds an image. Requires the src (source) and alt (alternative text) attributes.', code: '<img src="logo.png" alt="Company Logo" width="200" />' },
-          { name: '<ul> & <li>', desc: 'Defines an unordered (bulleted) list and its list items.', code: '<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>' },
-        ]
-      }
-    ]
-  },
-  css: {
-    label: 'CSS', color: '#1572B6',
-    sections: [
-      {
-        title: 'Layout & Box Model',
-        items: [
-          { name: 'display: flex', desc: 'Enables Flexbox, a 1D layout model for distributing space along a single row or column.', code: '.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}' },
-          { name: 'display: grid', desc: 'Enables CSS Grid, a 2D layout model optimized for complex grid-based designs.', code: '.grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}' },
-          { name: 'margin', desc: 'Creates space outside an element\'s border. Can be set for all sides or individually.', code: '.box {\n  margin: 20px; /* all sides */\n  margin-top: 10px;\n}' },
-          { name: 'padding', desc: 'Creates space inside an element\'s border, between the border and the content.', code: '.box {\n  padding: 16px;\n}' },
-        ]
-      },
-      {
-        title: 'Typography',
-        items: [
-          { name: 'font-family', desc: 'Specifies the typeface to use. Always provide a generic fallback (like sans-serif).', code: 'body {\n  font-family: "Inter", sans-serif;\n}' },
-          { name: 'font-size', desc: 'Sets the size of the text. Often defined in rem units for better accessibility scaling.', code: 'h1 {\n  font-size: 2.5rem;\n}' },
-          { name: 'color', desc: 'Sets the color of the text. Accepts hex, rgb, hsl, or named colors.', code: '.danger {\n  color: #ef4444;\n}' },
-        ]
-      }
-    ]
-  },
-  js: {
-    label: 'JavaScript', color: '#F7DF1E',
-    sections: [
-      {
-        title: 'Variables & Data',
-        items: [
-          { name: 'const & let', desc: 'const declares a variable that cannot be reassigned. let declares a block-scoped variable that can be changed.', code: 'const PI = 3.14;\nlet count = 0;\ncount = 1;' },
-          { name: 'Arrays', desc: 'A data structure to store multiple values in a single variable. Zero-indexed.', code: 'const fruits = ["apple", "banana"];\nconsole.log(fruits[0]); // "apple"' },
-          { name: 'Objects', desc: 'Collections of key-value pairs. Used to store structured data.', code: 'const user = {\n  name: "Alice",\n  age: 25\n};\nconsole.log(user.name);' },
-        ]
-      },
-      {
-        title: 'Functions',
-        items: [
-          { name: 'Arrow Functions', desc: 'A shorter syntax for writing functions. Does not bind its own `this` context.', code: 'const add = (a, b) => a + b;\nconsole.log(add(2, 3)); // 5' },
-          { name: 'Array Map', desc: 'Creates a new array populated with the results of calling a provided function on every element.', code: 'const nums = [1, 2, 3];\nconst doubled = nums.map(n => n * 2);\n// [2, 4, 6]' },
-          { name: 'Array Filter', desc: 'Creates a shallow copy of a portion of a given array, filtered down to just the elements that pass the test.', code: 'const ages = [12, 18, 25];\nconst adults = ages.filter(a => a >= 18);' },
-        ]
-      }
-    ]
-  },
-  react: {
-    label: 'React', color: '#61DAFB',
-    sections: [
-      {
-        title: 'Core Hooks',
-        items: [
-          { name: 'useState', desc: 'Allows you to add React state to function components.', code: 'const [count, setCount] = useState(0);' },
-          { name: 'useEffect', desc: 'Lets you perform side effects in function components.', code: 'useEffect(() => {\n  document.title = `You clicked ${count} times`;\n}, [count]);' }
-        ]
-      }
-    ]
-  },
-  python: {
-    label: 'Python', color: '#3776AB',
-    sections: [
-      {
-        title: 'Basics',
-        items: [
-          { name: 'Lists', desc: 'Ordered, mutable collections of items.', code: 'fruits = ["apple", "banana"]\nfruits.append("orange")' },
-          { name: 'Dictionaries', desc: 'Unordered collections of key-value pairs.', code: 'user = {"name": "Alice", "age": 25}\nprint(user["name"])' }
-        ]
-      }
-    ]
-  },
-  go: {
-    label: 'Go', color: '#00ADD8',
-    sections: [
-      {
-        title: 'Concurrency',
-        items: [
-          { name: 'Goroutines', desc: 'A lightweight thread managed by the Go runtime.', code: 'go f(x, y, z)' },
-          { name: 'Channels', desc: 'A typed conduit through which you can send and receive values with the channel operator, <-.', code: 'ch := make(chan int)\nch <- v    // Send v to channel ch.' }
-        ]
-      }
-    ]
-  },
-  rust: {
-    label: 'Rust', color: '#000000',
-    sections: [
-      {
-        title: 'Ownership',
-        items: [
-          { name: 'Borrowing', desc: 'Accessing data without taking ownership.', code: 'fn calculate_length(s: &String) -> usize {\n    s.len()\n}' }
-        ]
-      }
-    ]
-  },
-  cpp: {
-    label: 'C++', color: '#00599C',
-    sections: [
-      {
-        title: 'Memory',
-        items: [
-          { name: 'Pointers', desc: 'A variable that stores the memory address of another variable as its value.', code: 'int myAge = 43;\nint* ptr = &myAge;' }
-        ]
-      }
-    ]
-  },
-  csharp: {
-    label: 'C#', color: '#239120',
-    sections: [
-      {
-        title: 'LINQ',
-        items: [
-          { name: 'Where', desc: 'Filters a sequence of values based on a predicate.', code: 'var adults = users.Where(u => u.Age >= 18);' }
-        ]
-      }
-    ]
-  },
-  java: {
-    label: 'Java', color: '#007396',
-    sections: [
-      {
-        title: 'OOP',
-        items: [
-          { name: 'Classes', desc: 'A blueprint for creating objects.', code: 'public class Main {\n  int x = 5;\n}' }
-        ]
-      }
-    ]
-  },
-  figma: {
-    label: 'Figma', color: '#F24E1E',
-    sections: [
-      {
-        title: 'Shortcuts',
-        items: [
-          { name: 'Auto Layout', desc: 'Creates a dynamic frame that resizes to fit its contents.', code: 'Shift + A' },
-          { name: 'Components', desc: 'Reusable design elements.', code: 'Option + Cmd + K' }
-        ]
-      }
-    ]
-  }
-};
+const LANGS = Object.entries(DOCS).map(([key, value]) => ({ key, ...value }));
+const TOTAL_ENTRIES = LANGS.reduce(
+  (n, l) => n + l.sections.reduce((m, s) => m + s.items.length, 0),
+  0
+);
+
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+function itemMatches(item, q) {
+  const hay = [
+    item.name, item.desc, item.syntax, item.code,
+    ...(item.params || []).flat(),
+    ...(item.tips || []),
+    ...(item.pitfalls || []),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return hay.includes(q);
+}
+
+/* ---------- small building blocks ---------- */
+
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (e) {
+      /* clipboard unavailable (e.g. insecure context) - fail silently */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-label={copied ? 'Copied' : 'Copy code'}
+      className="absolute top-2 right-2 p-1.5 rounded-md bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition"
+    >
+      {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+    </button>
+  );
+}
+
+function CodeBlock({ code, label }) {
+  return (
+    <div className="relative mt-2">
+      {label && (
+        <div className="text-[10px] uppercase tracking-wider text-zinc-400 mb-1 font-semibold">{label}</div>
+      )}
+      <div className="relative">
+        <pre className="bg-zinc-900 rounded-lg p-3 pr-10 overflow-x-auto">
+          <code className="text-[11px] leading-relaxed font-mono text-emerald-300 whitespace-pre">{code}</code>
+        </pre>
+        <CopyButton text={code} />
+      </div>
+    </div>
+  );
+}
+
+function Bullets({ icon: Icon, title, items, tone }) {
+  if (!items || items.length === 0) return null;
+  const tones = {
+    tip: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+    warn: 'bg-amber-50 border-amber-200 text-amber-900',
+  };
+  return (
+    <div className={`mt-3 rounded-lg border px-3 py-2.5 ${tones[tone]}`}>
+      <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1">
+        <Icon size={12} /> {title}
+      </div>
+      <ul className="list-disc pl-4 space-y-0.5">
+        {items.map((t, i) => (
+          <li key={i} className="text-xs leading-relaxed">{t}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function DocItem({ item, color, autoOpen, forceOpen }) {
+  const [open, setOpen] = useState(!!autoOpen);
+
+  useEffect(() => {
+    if (forceOpen) setOpen(forceOpen.value);
+  }, [forceOpen]);
+
+  const panelId = `panel-${slug(item.name)}`;
+
+  return (
+    <div className="border border-zinc-200 rounded-xl overflow-hidden bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className="w-full text-left px-4 py-3 flex items-center justify-between gap-3 hover:bg-zinc-50 transition"
+      >
+        <span className="min-w-0">
+          <code className="text-xs font-mono font-semibold text-zinc-900 break-words">{item.name}</code>
+          {!open && (
+            <span className="block text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{item.desc}</span>
+          )}
+        </span>
+        <ChevronDown
+          size={15}
+          className={`shrink-0 text-zinc-400 transition-transform ${open ? 'rotate-180' : ''}`}
+          style={open ? { color } : undefined}
+        />
+      </button>
+
+      {open && (
+        <div id={panelId} className="px-4 pb-4">
+          <p className="text-xs text-zinc-600 leading-relaxed">{item.desc}</p>
+
+          {item.syntax && <CodeBlock code={item.syntax} label="Syntax" />}
+
+          {item.params && item.params.length > 0 && (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-left text-xs border border-zinc-200 rounded-lg overflow-hidden">
+                <thead className="bg-zinc-50 text-zinc-500">
+                  <tr>
+                    <th className="px-3 py-1.5 font-semibold w-1/3">Name</th>
+                    <th className="px-3 py-1.5 font-semibold">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {item.params.map(([n, d]) => (
+                    <tr key={n} className="border-t border-zinc-100 align-top">
+                      <td className="px-3 py-1.5"><code className="font-mono text-[11px] text-zinc-900">{n}</code></td>
+                      <td className="px-3 py-1.5 text-zinc-600">{d}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {item.code && <CodeBlock code={item.code} label="Example" />}
+
+          <Bullets icon={Lightbulb} title="Best practices" items={item.tips} tone="tip" />
+          <Bullets icon={AlertTriangle} title="Common pitfalls" items={item.pitfalls} tone="warn" />
+
+          {item.see && item.see.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-500">
+              <Link2 size={12} /> See also:
+              {item.see.map((s) => (
+                <span key={s} className="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 font-mono">{s}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- page ---------- */
+
+export default function DocsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialLang = LANGS.some((l) => l.key === searchParams.get('lang')) ? searchParams.get('lang') : 'html';
+  const [active, setActive] = useState(initialLang);
+  const [query, setQuery] = useState(searchParams.get('q') || '');
+  const [scope, setScope] = useState('current'); // 'current' | 'all'
+  const [forceOpen, setForceOpen] = useState(null);
+  const lang = LANGS.find((l) => l.key === active) || LANGS[0];
+  const exactQ = searchParams.get('q');
+
+  useEffect(() => {
+    document.title = `${lang.label} Docs — Acarpo`;
+  }, [lang]);
+
+  useEffect(() => {
+    const next = { lang: active };
+    if (query.trim()) next.q = query.trim();
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, query]);
+
+  const q = query.trim().toLowerCase();
+
+  const filteredSections = useMemo(() => {
+    if (!q) return lang.sections;
+    return lang.sections
+      .map((s) => ({ ...s, items: s.items.filter((i) => itemMatches(i, q)) }))
+      .filter((s) => s.items.length > 0);
+  }, [lang, q]);
+
+  const globalResults = useMemo(() => {
+    if (!q || scope !== 'all') return [];
+    return LANGS.map((l) => ({
+      lang: l,
+      items: l.sections.flatMap((s) => s.items.filter((i) => itemMatches(i, q)).map((i) => ({ ...i, section: s.title }))),
+    })).filter((r) => r.items.length > 0);
+  }, [q, scope]);
+
+  const totalItems = lang.sections.reduce((sum, s) => sum + s.items.length, 0);
+  const shownItems = filteredSections.reduce((sum, s) => sum + s.items.length, 0);
+
+  const setAll = useCallback((value) => setForceOpen({ value, n: Date.now() }), []);
+
+  const scrollToSection = (title) => {
+    const el = document.getElementById(`sec-${slug(title)}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const openFromGlobal = (langKey, name) => {
+    setActive(langKey);
+    setScope('current');
+    setQuery(name);
+  };
+
+  const showingGlobal = scope === 'all' && q;
+
+  return (
+    <div className="max-w-7xl mx-auto px-5 py-10 flex flex-col md:flex-row gap-8">
+      {/* ---------- left rail ---------- */}
+      <aside className="w-full md:w-72 shrink-0 space-y-6 md:sticky md:top-6 md:self-start md:max-h-[calc(100vh-3rem)] md:overflow-y-auto pr-1">
+        <div>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${lang.color}1A` }}>
+              <BookOpen size={18} style={{ color: lang.color }} strokeWidth={2.3} />
+            </div>
+            <h1 className="af-display text-2xl font-bold text-zinc-900">Docs</h1>
+          </div>
+          <p className="text-sm text-zinc-500 max-w-xl">
+            A practical developer reference covering {LANGS.length} languages and tools — {TOTAL_ENTRIES}+ entries,
+            each with syntax, examples, best practices and common pitfalls.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Languages and tools">
+          {LANGS.map((l) => (
+            <button
+              key={l.key}
+              type="button"
+              role="tab"
+              aria-selected={active === l.key}
+              onClick={() => { setActive(l.key); setQuery(''); setScope('current'); }}
+              className="px-3 py-1.5 rounded-lg text-[11px] font-bold border flex items-center gap-1"
+              style={active === l.key
+                ? { background: l.color, borderColor: l.color, color: l.textOnColor || '#fff' }
+                : { background: '#fff', borderColor: '#E4E4E7', color: '#71717A' }}
+            >
+              <Code2 size={12} /> {l.label}
+            </button>
+          ))}
+        </div>
+
+        <div>
+          <div className="relative">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={scope === 'all' ? 'Search all docs...' : `Search ${lang.label} reference...`}
+              aria-label="Search documentation"
+              className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-400"
+            />
+          </div>
+          <label className="flex items-center gap-2 mt-2 text-xs text-zinc-500 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={scope === 'all'}
+              onChange={(e) => setScope(e.target.checked ? 'all' : 'current')}
+            />
+            Search across all languages
+          </label>
+        </div>
+
+        {!showingGlobal && (
+          <nav aria-label={`${lang.label} sections`}>
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-zinc-400 mb-2">
+              <ListTree size={12} /> On this page
+            </div>
+            <ul className="space-y-0.5">
+              {filteredSections.map((s) => (
+                <li key={s.title}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection(s.title)}
+                    className="w-full text-left text-xs text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-md px-2 py-1.5 flex justify-between gap-2"
+                  >
+                    <span className="truncate">{s.title}</span>
+                    <span className="text-zinc-400 shrink-0">{s.items.length}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </aside>
+
+      {/* ---------- content ---------- */}
+      <main className="flex-1 min-w-0 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+        {showingGlobal ? (
+          <>
+            <p className="text-[11px] text-zinc-400 mb-4">
+              {globalResults.reduce((n, r) => n + r.items.length, 0)} results for &ldquo;{query}&rdquo; across {globalResults.length} languages
+            </p>
+            <div className="space-y-6">
+              {globalResults.map((r) => (
+                <div key={r.lang.key}>
+                  <h2 className="af-display text-sm font-bold text-zinc-900 mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: r.lang.color }} />
+                    {r.lang.label}
+                  </h2>
+                  <div className="space-y-2">
+                    {r.items.slice(0, 8).map((i) => (
+                      <button
+                        key={`${r.lang.key}-${i.section}-${i.name}`}
+                        type="button"
+                        onClick={() => openFromGlobal(r.lang.key, i.name)}
+                        className="w-full text-left border border-zinc-200 rounded-xl px-4 py-3 hover:bg-zinc-50"
+                      >
+                        <code className="text-xs font-mono font-semibold text-zinc-900">{i.name}</code>
+                        <span className="block text-[11px] text-zinc-500 mt-0.5 line-clamp-2">{i.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {globalResults.length === 0 && <p className="text-sm text-zinc-400">No entries match that search.</p>}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* language overview */}
+            <header className="mb-6 pb-6 border-b border-zinc-100">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="af-display text-xl font-bold text-zinc-900 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: lang.color }} />
+                  {lang.label}
+                </h2>
+                {lang.docsUrl && (
+                  <a
+                    href={lang.docsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold flex items-center gap-1 hover:underline"
+                    style={{ color: lang.color === '#F7DF1E' ? '#A16207' : lang.color === '#000000' ? '#18181B' : lang.color }}
+                  >
+                    Official documentation <ExternalLink size={12} />
+                  </a>
+                )}
+              </div>
+              {lang.tagline && <p className="text-sm font-medium text-zinc-700 mt-1">{lang.tagline}</p>}
+              {lang.about && <p className="text-xs text-zinc-600 leading-relaxed mt-2">{lang.about}</p>}
+              {lang.facts && (
+                <dl className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {lang.facts.map(([k, v]) => (
+                    <div key={k} className="bg-zinc-50 rounded-lg px-3 py-2">
+                      <dt className="text-[10px] uppercase tracking-wide text-zinc-400 font-semibold">{k}</dt>
+                      <dd className="text-xs text-zinc-800 font-medium">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {lang.getStarted && <CodeBlock code={lang.getStarted} label="Getting started" />}
+            </header>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <p className="text-[11px] text-zinc-400">{shownItems} of {totalItems} entries</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAll(true)}
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-50 flex items-center gap-1"
+                >
+                  <ChevronsUpDown size={12} /> Expand all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAll(false)}
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-50"
+                >
+                  Collapse all
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {filteredSections.map((section) => (
+                <section key={section.title} id={`sec-${slug(section.title)}`} className="scroll-mt-6">
+                  <h3 className="af-display text-sm font-bold text-zinc-900 mb-3 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: lang.color }} />
+                    {section.title}
+                  </h3>
+                  <div className="space-y-2">
+                    {section.items.map((item) => (
+                      <DocItem
+                        key={`${lang.key}-${item.name}`}
+                        item={item}
+                        color={lang.color}
+                        autoOpen={item.name === exactQ}
+                        forceOpen={forceOpen}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+              {filteredSections.length === 0 && (
+                <p className="text-sm text-zinc-400">
+                  No entries match that search. Try the &ldquo;Search across all languages&rdquo; option.
+                </p>
+              )}
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
